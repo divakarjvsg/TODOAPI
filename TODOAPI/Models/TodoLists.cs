@@ -20,6 +20,7 @@ namespace TodoAPI.Models
         
         [Required]
         public Guid CreatedBy { get; set; }
+
         public List<TodoItems> todoItems { get; set; }        
     }
 }

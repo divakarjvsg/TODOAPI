@@ -12,6 +12,12 @@ using Microsoft.OpenApi.Models;
 using NLog.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using TodoAPI.Utilities;
+using GraphQL;
+using TodoAPI.Queries;
+using TodoAPI.Types;
+using GraphQL.Types;
+using TodoAPI.Schema;
+using GraphiQl;
 
 namespace TODOAPI
 {
@@ -34,8 +40,14 @@ namespace TODOAPI
             services.AddScoped<ITodoListRepository, TodoListRepository>();
             services.AddScoped<ITodoItemsRepository, TodoItemsRepository>();
             services.AddScoped<ILabelRepository, LabelRepository>();
+            services.AddSingleton<IDocumentExecuter,DocumentExecuter>();
+            services.AddScoped<TodoQuery>();
+            services.AddScoped<TodoListTypes>();
+            //var sp = services.BuildServiceProvider();
+            //services.AddSingleton<ISchema>(new TodoSchema(new FuncDependencyResolver(type => sp.GetService(type))));
 
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+
 
             #region Swagger
             services.AddSwaggerGen(c =>
@@ -76,7 +88,7 @@ namespace TODOAPI
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseGraphiQl();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

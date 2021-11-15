@@ -16,7 +16,9 @@ namespace TodoAPI.Repositories
         private readonly AppDbContext appDbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Guid LoginUser;
-        public TodoItemsRepository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
+        public TodoItemsRepository(AppDbContext appDbContext
+            , IHttpContextAccessor httpContextAccessor
+            )
         {
             this.appDbContext = appDbContext;
             _httpContextAccessor = httpContextAccessor;
@@ -60,6 +62,13 @@ namespace TodoAPI.Repositories
         {
             return await appDbContext.TodoItems
                 .FirstOrDefaultAsync(x => x.ItemName == ItemName && x.CreatedBy == LoginUser);
+        }
+
+        public async Task<IEnumerable<TodoItems>> GetTodoItemforListID(int ListId)
+        {
+            IQueryable<TodoItems> query = appDbContext.TodoItems.Where(x => x.Id == ListId);
+            var result = await query.ToListAsync();
+            return result;
         }
 
         public async Task<IEnumerable<TodoItems>> GetTodoItems(PageParmeters pageParmeters)

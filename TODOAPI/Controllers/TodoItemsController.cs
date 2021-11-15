@@ -18,11 +18,13 @@ namespace TodoAPI.Controllers
     {
         private readonly ITodoItemsRepository todoItemsRepository;
 
+        public ITodoListRepository todoListRepository { get; }
         public ILogger<TodoItemsController> Logger { get; }
 
-        public TodoItemsController(ITodoItemsRepository todoItemsRepository,ILogger<TodoItemsController> logger)
+        public TodoItemsController(ITodoItemsRepository todoItemsRepository,ITodoListRepository todoListRepository, ILogger<TodoItemsController> logger)
         {
             this.todoItemsRepository = todoItemsRepository;
+            this.todoListRepository = todoListRepository;
             Logger = logger;
         }
 
@@ -105,6 +107,12 @@ namespace TodoAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
+                var resultitem = await todoListRepository.GetTodoList(todoItem.Id);
+                if (resultitem == null)
+                {
+                    ModelState.AddModelError("item", "Invalid List Item");
+                    return BadRequest(ModelState);
+                }
                 var createdItem= await todoItemsRepository.AddTodoItem(todoItem);
                 Logger.LogInformation($"Item created in Todoitems with ID:{createdItem.ItemID}");
                 return CreatedAtAction(nameof(GetTodoItem),

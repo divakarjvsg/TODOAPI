@@ -16,6 +16,8 @@ namespace TodoAPI.Interfaces
         Task<TodoItems> UpdateTodoItem(TodoItems todoItem);
         Task DeleteTodoItem(int ItemId);
         Task<TodoItems> GetTodoItemByGuid(Guid ItemGuid);
+        Task<IEnumerable<TodoItems>> GetTodoItemforListID(int ListId);
+
 
     }
 }
