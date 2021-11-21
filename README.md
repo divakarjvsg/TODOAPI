@@ -1,66 +1,40 @@
 
 # Todo Api
 
-Todo Api is to create and manage the todo lists with items. Can assign labels to lists and items.
+A rest api project to do CRUD operations for labels, todoitems and lists via HTTP Verbs (GET, POST, PUT, DELETE, PATCH). It includes functionality for assigning labels to items and lists. It also logs each and every request/response or error if any.
 
 Api uses local SQL database.
 
+DB Setup -
+
+Database is configured and migration is already present. It will be created when the application runs for the first time automatically. Only the connection string in appsettings.json needs to be changed accordingly.
+If database is to be updated with changes "Update-database" command will update the database.
+Pre Requisite:
+
+Microsoft dot net core 3.1 sdk package/ dot net core runtime 3.1 version should be installed on machine.
+
+How to run application:
+
+Step 1: Clone repo in destination folder: git clone https://github.com/divakarjvsg/ToDoApi.git
+
+Step 2: Go to the project folder and run “dotnet restore” in cmd.
+
+Step 3: Go the repo folder and run “dotnet run” in cmd.
+
+Navigate to http://localhost:28120/PlayGround to play with GraphQl UI.
 
 
-## API Reference
+For Swagger:
 
-#### Get all TodoLists
+Navigate to http://localhost:28120/ in a browser to play with the Swagger UI.
 
-```http
-  GET /api/TodoLists
-```
+Step 1: Click Register and register user with valid values.
 
-#### Get TodoLists item
-
-```http
-  GET /api/TodoLists/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `id`      | `string` | **Required**. Id of item to fetch |
-
-#### POST TodoLists item
-
-```http
-  POST /api/TodoLists
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `TodoLists`      | `object` | **Required**. item to insert |
-
-#### DELETE TodoLists item
-
-```http
-  DELETE /api/TodoLists/${id}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `id`      | `string` | **Required**. Id of item to delete |
-
-```http
-  GET /api/TodoLists/SearchList/${search}
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `search`      | `string` | **Required**. name of item to search |
+Step 2: After registration, click Login and enter your credentials.
 
 
-```http
-  POST /api/Labels/Assign/${SelectedGuid}
-```
+Note -
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `SelectedGuid`      | `Guid` | **Required**. name of list/item to assign a label |
-| `labelId`      | `json` | **Required**. Id of the label to assign selected Guid |
-
-
+A user has to create todo list first in order to add todo item.
+One username can not be registered again.
+.Net Core Identity was used for Authentication 
