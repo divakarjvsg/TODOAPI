@@ -5,10 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System.IO;
 using TodoAPI.Graphql;
 using TodoAPI.Queries;
 using TodoAPI.Types;
@@ -39,40 +37,14 @@ namespace TODOAPI
             services.AddScoped<TodoQuery>();
             services.AddScoped<TodoListTypes>();
 
-            //services.AddGraphQL(s => SchemaBuilder.New()
-            //    .AddServices(s)
-            //    .AddType<TodoItemType>()
-            //    .AddType<TodoListTypes>()
-            //    .AddQueryType<TodoQuery>()
-            //    .AddMutationType<TodoMutation>()                
-            //    .Create());
-
-            //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddGraphQLServer()
                 .AddType<TodoItemType>()
                 .AddType<TodoListTypes>()
                 .AddQueryType<TodoQuery>().AddMutationType<TodoMutation>();
 
-
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
-
-
-            //services.AddScoped<TodoSchema>();
-            //var sp = services.BuildServiceProvider();
-            //services.AddSingleton<ISchema>(new TodoSchema(new FuncDependencyResolver(type => sp.GetService(type))));
-
-            //services.AddGraphQL(options =>
-            //{
-            //    options.EnableMetrics = true;
-            //})
-            //.AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
-            //.AddSystemTextJson()
-            //.AddUserContextBuilder(httpContext => new GraphQLUserContext { User = httpContext.User });
-
-            //services.AddDirectoryBrowser();
             services.AddSwaggerGen(c =>
-            {
-                //c.IncludeXmlComments(string.Format(@"{0}\TodoApi.xml", System.AppDomain.CurrentDomain.BaseDirectory));
+            {                
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
@@ -89,14 +61,6 @@ namespace TODOAPI
 
             if (env.IsDevelopment())
             {
-                //app.UseFileServer(new FileServerOptions
-                //{
-                //    FileProvider = new PhysicalFileProvider(
-                //       System.IO.Path.Combine(Directory.GetCurrentDirectory(), "swaggerschema/v1")),
-                //    RequestPath = "/swagger/v1",
-                //    EnableDirectoryBrowsing = true
-                //});
-
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
@@ -109,8 +73,7 @@ namespace TODOAPI
             app.UseRouting();
             app.UseMiddleware<ErrorHandlerMiddleware>();
             app.UseAuthorization();
-            //app.UseGraphQL();
-            //app.UseGraphQLPlayground();
+            //app.UseGraphQL.Playground();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
