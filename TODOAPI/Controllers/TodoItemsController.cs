@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TodoAPI.Interfaces;
 using TodoAPI.Models;
+using ToDoApi.DataAccess.Repositories.Contracts;
+using ToDoApi.Database.Models;
 
 namespace TodoAPI.Controllers
 {
@@ -16,163 +16,124 @@ namespace TodoAPI.Controllers
     [Authorize]
     public class TodoItemsController : ControllerBase
     {
-        private readonly ITodoItemsRepository todoItemsRepository;
+        private readonly ITodoItemsRepository _todoItemsRepository;
+        private readonly ITodoListRepository _todoListRepository;
+        private readonly ILogger<TodoItemsController> Logger;
 
-        public ITodoListRepository todoListRepository { get; }
-        public ILogger<TodoItemsController> Logger { get; }
-
-        public TodoItemsController(ITodoItemsRepository todoItemsRepository,ITodoListRepository todoListRepository, ILogger<TodoItemsController> logger)
+        public TodoItemsController(ITodoItemsRepository _todoItemsRepository, ITodoListRepository _todoListRepository, ILogger<TodoItemsController> logger)
         {
-            this.todoItemsRepository = todoItemsRepository;
-            this.todoListRepository = todoListRepository;
+            this._todoItemsRepository = _todoItemsRepository;
+            this._todoListRepository = _todoListRepository;
             Logger = logger;
         }
 
-        [HttpGet("{search}")]
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("SearchItems/{name}")]
+        [HttpGet()]
         public async Task<ActionResult<IEnumerable<TodoItems>>> Search(string name)
         {
-            try
+            var result = await _todoItemsRepository.Search(name);
+            if (result.Any())
             {
-                var result = await todoItemsRepository.Search(name);
-
-                if (result.Any())
-                {
-                    Logger.LogInformation($"Item fetched in Todoitems with name:{name}");
-                    return Ok(result);
-                }
-
-                return NotFound();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in searching items : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                "Error retrieving data from the database");
-            }
-        }
-
-        [HttpGet]
-        public async Task<ActionResult> GetTodoItems([FromQuery]PageParmeters pageParmeters)
-        {
-            try
-            {
-                var result = await todoItemsRepository.GetTodoItems(pageParmeters);
-                Logger.LogInformation($"Items fetched from Todoitems");
+                Logger.LogInformation($"Item fetched in ToDoItems with name:{name}");
                 return Ok(result);
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in fetching items : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error retrieving data from the database");
-            }
+            return NotFound();
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet]
+        public async Task<ActionResult> GetTodoItems([FromQuery] PageParmeters pageParmeters)
+        {
+            var result = await _todoItemsRepository.GetTodoItems(pageParmeters);
+            Logger.LogInformation($"Items fetched from ToDoItems");
+            return Ok(result);
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<TodoItems>> GetTodoItem(int id)
         {
-            try
+            var result = await _todoItemsRepository.GetTodoItem(id);
+            if (result == null)
             {
-                var result = await todoItemsRepository.GetTodoItem(id);
-
-                if (result == null)
-                {
-                    return NotFound();
-                }
-                Logger.LogInformation($"Item fetched in Todoitems with ID:{id}");
-                return result;
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error in fetching item :{id} || " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error retrieving data from the database");
-            }
+            Logger.LogInformation($"Item fetched in ToDoItems with ID:{id}");
+            return result;
         }
 
 
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public async Task<ActionResult<TodoItems>> CreateTodoItem(TodoItems todoItem)
+        public async Task<ActionResult<TodoItems>> CreateTodoItem(TodoItemModel todoItem)
         {
-            try
+            if (todoItem == null)
+                return BadRequest();
+
+            var item = await _todoItemsRepository.GetTodoItemByName(todoItem.ItemName);
+            if (item != null)
             {
-                if (todoItem == null)
-                    return BadRequest();
-
-                var item = await todoItemsRepository.GetTodoItemByName(todoItem.ItemName);
-
-                if (item != null)
-                {
-                    ModelState.AddModelError("item", "Duplicate Item");
-                    return BadRequest(ModelState);
-                }
-
-                var resultitem = await todoListRepository.GetTodoList(todoItem.Id);
-                if (resultitem == null)
-                {
-                    ModelState.AddModelError("item", "Invalid List Item");
-                    return BadRequest(ModelState);
-                }
-                var createdItem= await todoItemsRepository.AddTodoItem(todoItem);
-                Logger.LogInformation($"Item created in Todoitems with ID:{createdItem.ItemID}");
-                return CreatedAtAction(nameof(GetTodoItem),
-                    new { id = createdItem.ItemID }, createdItem);
+                ModelState.AddModelError("item", "Duplicate Item");
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
+
+            var resultitem = await _todoListRepository.GetTodoList(todoItem.ListId);
+            if (resultitem == null)
             {
-                Logger.LogError("Error in creating item : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error creating new Item");
+                ModelState.AddModelError("item", "Invalid List Item");
+                return BadRequest(ModelState);
             }
+
+            var itemtoCreate = new TodoItems { ItemName = todoItem.ItemName, Id = todoItem.ListId };
+            var createdItem = await _todoItemsRepository.AddTodoItem(itemtoCreate);
+            Logger.LogInformation($"Item created in ToDoItems with ID:{createdItem.ItemID}");
+
+            return CreatedAtAction(nameof(GetTodoItem),
+                new { id = createdItem.ItemID }, createdItem);
         }
 
-        [HttpPut("{id:int}")]
+
+
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Route("{id:int}")]
+        [AcceptVerbs("PUT", "PATCH")]
         public async Task<ActionResult<TodoItems>> UpdateTodoItem(int id, TodoItems todoItem)
         {
-            try
-            {
-                if (id != todoItem.ItemID)
-                    return BadRequest("Item ID mismatch");
+            if (id != todoItem.ItemID)
+                return BadRequest("Item ID mismatch");
 
-                var itemToUpdate = await todoItemsRepository.GetTodoItem(id);
-
-                if (itemToUpdate == null)
-                {
-                    return NotFound($"Item with Id = {id} not found");
-                }
-                Logger.LogInformation($"Item updated in Todoitems with ID:{id}");
-                return await todoItemsRepository.UpdateTodoItem(todoItem);
-            }
-            catch (Exception ex)
+            var itemToUpdate = await _todoItemsRepository.GetTodoItem(id);
+            if (itemToUpdate == null)
             {
-                Logger.LogError("Error in updating item : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error updating Item");
+                return NotFound($"Item with Id = {id} not found");
             }
+            Logger.LogInformation($"Item updated in ToDoItems with ID:{id}");
+
+            return await _todoItemsRepository.UpdateTodoItem(todoItem);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteTodoItem(int id)
         {
-            try
+            var itemToDelete = await _todoItemsRepository.GetTodoItem(id);
+            if (itemToDelete == null)
             {
-                var itemToDelete = await todoItemsRepository.GetTodoItem(id);
-
-                if (itemToDelete == null)
-                {
-                    return NotFound($"Item with Id = {id} not found");
-                }
-
-                await todoItemsRepository.DeleteTodoItem(id);
-                Logger.LogInformation($"Item deleted in Todoitems with ID:{id}");
-                return Ok($"Item with Id = {id} deleted");
+                return NotFound($"Item with Id = {id} not found");
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in deleting item : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error deleting Item");
-            }
+
+            await _todoItemsRepository.DeleteTodoItem(id);
+            Logger.LogInformation($"Item deleted in ToDoItems with ID:{id}");
+            return Ok($"Item with Id = {id} deleted");
         }
     }
 }

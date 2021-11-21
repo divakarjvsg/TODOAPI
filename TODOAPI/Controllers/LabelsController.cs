@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TodoAPI.Interfaces;
 using TodoAPI.Models;
-using TodoAPI.Repositories;
+using ToDoApi.DataAccess.Repositories.Contracts;
+using ToDoApi.Database.Models;
 
 namespace TodoAPI.Controllers
 {
@@ -16,121 +16,137 @@ namespace TodoAPI.Controllers
     [Authorize]
     public class LabelsController : ControllerBase
     {
-        private readonly ILabelRepository labelRepository;
-        private readonly ITodoItemsRepository todoItemsRepository;
-        private readonly ITodoListRepository todoListRepository;
+        private readonly ILabelRepository _labelRepository;
+        private readonly ITodoItemsRepository _todoItemsRepository;
+        private readonly ITodoListRepository _todoListRepository;
 
-        public ILogger Logger { get; }
+        private ILogger Logger { get; }
 
-        public LabelsController(ILabelRepository labelRepository,ITodoItemsRepository todoItemsRepository,ITodoListRepository todoListRepository, ILogger<LabelsController> logger)
+        public LabelsController(ILabelRepository _labelRepository, ITodoItemsRepository _todoItemsRepository, ITodoListRepository _todoListRepository, ILogger<LabelsController> logger)
         {
-            this.labelRepository = labelRepository;
-            this.todoItemsRepository = todoItemsRepository;
-            this.todoListRepository = todoListRepository;
+            this._labelRepository = _labelRepository;
+            this._todoItemsRepository = _todoItemsRepository;
+            this._todoListRepository = _todoListRepository;
             Logger = logger;
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
-        public async Task<ActionResult> GetLabels()
+        public async Task<ActionResult> GetLabels([FromQuery] PageParmeters pageParmeters)
         {
-            try
-            {                
-                return Ok(await labelRepository.GetLabels());
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in GetLabels : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error retrieving data from the database");
-            }
+            var result = await _labelRepository.GetLabels(pageParmeters);
+            Logger.LogInformation($"Labels fetched");
+            return Ok(result);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [Route("AddLabel")]
         [HttpPost]
-        public async Task<ActionResult<Labels>> AddLabels(Labels label)
+        public async Task<ActionResult<Labels>> AddLabels(LabelModel label)
         {
-            try
+            if (label == null)
+                return BadRequest();
+
+            var item = await _labelRepository.GetLabelByName(label.LabelName);
+
+            if (item != null)
             {
-                if (label == null)
-                    return BadRequest();
-
-                var item = await labelRepository.GetLabelByName(label.LabelName);
-
-                if (item != null)
-                {
-                    ModelState.AddModelError("Label", "Duplicate Label");
-                    return BadRequest(ModelState);
-                }
-
-                var createdItem = await labelRepository.AddLabels(label);
-
-                return CreatedAtAction(nameof(GetLabels),
-                    new { id = createdItem.LabelId }, createdItem);
+                ModelState.AddModelError("Label", "Duplicate Label");
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in Adding Labels : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error creating new Label");
-            }
+
+            var labeltoCreate = new Labels { LabelName = label.LabelName };
+
+            var createdItem = await _labelRepository.AddLabels(labeltoCreate);
+
+            return CreatedAtAction(nameof(GetLabels),
+                new { id = createdItem.LabelId }, createdItem);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteLabel(int id)
         {
-            try
+            var labelToDelete = await _labelRepository.GetLabel(id);
+            if (labelToDelete == null)
             {
-                var labelToDelete = await labelRepository.GetLabel(id);
-
-                if (labelToDelete == null)
-                {
-                    return NotFound($"Label with Id = {id} not found");
-                }
-
-                await labelRepository.DeleteLabel(id);
-
-                return Ok($"Label with Id = {id} deleted");
+                return NotFound($"Label with Id = {id} not found");
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in deleting label : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error deleting Label");
-            }
+
+            await _labelRepository.DeleteLabel(id);
+
+            return Ok($"Label with Id = {id} deleted");
         }
 
-        [Route("Assign/{SelectedGuid:Guid}")]
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Route("AssignLabeltoItem/{SelectedGuid:Guid}")]
         [HttpPost]
-        public async Task<ActionResult> AssignLabels(Guid SelectedGuid, List<Labels> SelectedLabels)
+        public async Task<ActionResult> AssignLabelstoItem(Guid SelectedGuid, List<Labels> SelectedLabels)
         {
-            try
+            if (SelectedGuid == null)
+                return BadRequest();
+            
+            var item = await _todoItemsRepository.GetTodoItemByGuid(SelectedGuid);
+
+            if (item == null)
             {
-                if (SelectedGuid == null)
-                    return BadRequest();
-
-                var item = await todoItemsRepository.GetTodoItemByGuid(SelectedGuid);
-
-                if (item == null)
-                {
-                    var listitem= await todoListRepository.GetTodoListByGuid(SelectedGuid);
-                    if(listitem==null)
-                    {
-                        Logger.LogInformation($"No item/list in database with unique ID:{SelectedGuid}");
-                        return StatusCode(StatusCodes.Status204NoContent,
-                                    "Invalid ItemID/ListID");
-                    }
-                }
-
-                await labelRepository.AssignLabel(SelectedGuid,SelectedLabels);
-
-                return Ok("Labels Assigned");
+                Logger.LogInformation($"No item in ToDoItems with unique ID:{SelectedGuid}");
+                return StatusCode(StatusCodes.Status204NoContent,
+                            "Invalid ItemID");
             }
-            catch (Exception ex)
+
+            foreach (var label in SelectedLabels)
             {
-                Logger.LogError("Error in Assigning labels : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error Assigning Labels");
+                var labelresult = await _labelRepository.GetLabel(label.LabelId);
+                if (labelresult == null)
+                    return StatusCode(StatusCodes.Status204NoContent,
+                                "Invalid Label(s)");
             }
+
+            await _labelRepository.AssignLabel(SelectedGuid, SelectedLabels);
+
+            return Ok("Labels Assigned to Item");
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Route("AssignLabeltoList/{SelectedGuid:Guid}")]
+        [HttpPost]
+        public async Task<ActionResult> AssignLabelstoList(Guid SelectedGuid, List<Labels> SelectedLabels)
+        {
+            if (SelectedGuid == null)
+                return BadRequest();
+
+            var listitem = await _todoListRepository.GetTodoListByGuid(SelectedGuid);
+
+            if (listitem == null)
+            {
+                Logger.LogInformation($"No list in ToDoList with unique ID:{SelectedGuid}");
+                return StatusCode(StatusCodes.Status204NoContent,
+                            "Invalid ListID");
+            }
+
+            foreach (var label in SelectedLabels)
+            {
+                var labelresult = await _labelRepository.GetLabel(label.LabelId);
+                if (labelresult == null)
+                    return StatusCode(StatusCodes.Status204NoContent,
+                                "Invalid Label(s)");
+            }
+
+            await _labelRepository.AssignLabel(SelectedGuid, SelectedLabels);
+
+            return Ok("Labels Assigned to List");
+        }
     }
 }

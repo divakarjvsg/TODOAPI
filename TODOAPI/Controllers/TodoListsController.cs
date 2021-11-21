@@ -2,174 +2,128 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TodoAPI.Interfaces;
 using TodoAPI.Models;
+using ToDoApi.DataAccess.Repositories.Contracts;
+using ToDoApi.Database.Models;
 
 namespace TodoAPI.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
     public class TodoListsController : ControllerBase
     {
-        private readonly ITodoListRepository todoListRepository;
+        private readonly ITodoListRepository _todoListRepository;
+        private readonly ILogger<TodoListsController> Logger;
 
-        public ILogger<TodoListsController> Logger { get; }
-
-        public TodoListsController(ITodoListRepository todoListRepository,ILogger<TodoListsController> logger)
+        public TodoListsController(ITodoListRepository _todoListRepository, ILogger<TodoListsController> logger)
         {
-            this.todoListRepository = todoListRepository;
+            this._todoListRepository = _todoListRepository;
             Logger = logger;
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("SearchList/{name}")]
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<TodoLists>>> Search(string name)
         {
-            try
+            var result = await _todoListRepository.Search(name);
+            if (result.Any())
             {
-                var result = await todoListRepository.Search(name);
-
-                if (result.Any())
-                {
-                    Logger.LogInformation($"Returned all TodoList data of Name: {name} from database.");
-                    return Ok(result);
-                }
-
-                return NotFound();
+                Logger.LogInformation($"Returned all ToDoList data of Name: {name} from database.");
+                return Ok(result);
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in searching List item : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                "Error retrieving data from the database");
-            }
+            return NotFound();
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult> GetTodoLists([FromQuery] PageParmeters pageParmeters)
         {
-            try
-            {
-                var result = await todoListRepository.GetTodoLists(pageParmeters);
-                Logger.LogInformation($"Returned all TodoList data from database.");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in fetching List items : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error retrieving data from the database");
-            }
+            var result = await _todoListRepository.GetTodoLists(pageParmeters);
+            Logger.LogInformation($"Returned all ToDoList data from database.");
+            return Ok(result);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<TodoLists>> GetTodoList(int id)
         {
-            try
+            var result = await _todoListRepository.GetTodoList(id);
+            if (result == null)
             {
-                var result = await todoListRepository.GetTodoList(id);
-
-                if (result == null)
-                {
-                    return NotFound();
-                }
-                Logger.LogInformation($"Returned TodoList ID={id} from database.");
-                return result;
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error in fetchin Listitem :{id} |" + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error retrieving data from the database");
-            }
+            Logger.LogInformation($"Returned ToDoList ID={id} from database.");
+            return result;
         }
 
 
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [HttpPost]
-        public async Task<ActionResult<TodoLists>> CreateTodoList(TodoLists todoList)
+        public async Task<ActionResult<TodoLists>> CreateTodoList(TodoListModel todoList)
         {
-            try
+            if (todoList == null)
+                return BadRequest();
+
+            var item = await _todoListRepository.GetTodoListByName(todoList.TodoListName);
+            if (item != null)
             {
-                if (todoList == null)
-                    return BadRequest();
-                //todoList.CreatedDateTime = DateTime.Now;
-                
-                //todoList.ListGuid = Guid.NewGuid();
-                var item = await todoListRepository.GetTodoListByName(todoList.TodoListName);
-
-                if (item != null)
-                {
-                    ModelState.AddModelError("item", "Duplicate Item");
-                    return BadRequest(ModelState);
-                }
-
-                var createdItem = await todoListRepository.AddTodoList(todoList);
-                Logger.LogInformation($"Item created in TodoList with ID:{createdItem.Id}");
-
-                return CreatedAtAction(nameof(GetTodoList),
-                    new { id = createdItem.Id }, createdItem);
+                ModelState.AddModelError("item", "Duplicate Item in ToDoList");
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in creating Listitem : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error creating new TodoList");
-            }
+
+            var itemtoCreate=new TodoLists{ TodoListName=todoList.TodoListName};
+            var createdItem = await _todoListRepository.AddTodoList(itemtoCreate);
+            Logger.LogInformation($"Item created in ToDoList with ID:{createdItem.Id}");
+
+            return CreatedAtAction(nameof(GetTodoList),
+                new { id = createdItem.Id }, createdItem);
         }
 
-        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("{id:int}")]
+        [AcceptVerbs("PUT","PATCH")]
         public async Task<ActionResult<TodoLists>> UpdateTodoList(int id, TodoLists todoList)
         {
-            try
-            {
-                if (id != todoList.Id)
-                    return BadRequest("Item ID mismatch");
+            if (id != todoList.Id)
+                return BadRequest("Item ID mismatch");
 
-                var itemToUpdate = await todoListRepository.GetTodoList(id);
+            var itemToUpdate = await _todoListRepository.GetTodoList(id);
 
-                if (itemToUpdate == null)
-                {
-                    return NotFound($"Item with Id = {id} not found");
-                }
-                Logger.LogInformation($"Item updated in TodoList with ID:{id}");
-                return await todoListRepository.UpdateTodoList(todoList);
-            }
-            catch (Exception ex)
+            if (itemToUpdate == null)
             {
-                Logger.LogError("Error in updating Listitem : " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error updating todoLists");
+                return NotFound($"Item with Id = {id} not found in ToDoList");
             }
+            Logger.LogInformation($"Item updated in ToDoList with ID:{id}");
+            return await _todoListRepository.UpdateTodoList(todoList);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteTodoList(int id)
         {
-            try
+            var itemToDelete = await _todoListRepository.GetTodoList(id);
+            if (itemToDelete == null)
             {
-                var itemToDelete = await todoListRepository.GetTodoList(id);
-
-                if (itemToDelete == null)
-                {
-                    return NotFound($"Item with Id = {id} not found");
-                }
-
-                await todoListRepository.DeleteTodoList(id);
-                Logger.LogInformation($"Item deleted in TodoList with ID:{id}");
-                return Ok($"Item with Id = {id} deleted");
+                return NotFound($"Item with Id = {id} not found in ToDoList");
             }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error in deleting Listitem :{id} | " + ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error deleting TodoList");
-            }
+
+            await _todoListRepository.DeleteTodoList(id);
+
+            Logger.LogInformation($"Item deleted in ToDoList with ID:{id}");
+            return Ok($"Item with Id = {id} deleted in ToDoList");
         }
     }
 }

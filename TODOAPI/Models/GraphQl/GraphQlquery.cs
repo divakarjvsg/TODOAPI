@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
 
-
 namespace TodoAPI.Models.GraphQl
 {
     public class GraphQlquery
