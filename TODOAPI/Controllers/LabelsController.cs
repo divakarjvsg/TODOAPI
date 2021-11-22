@@ -11,9 +11,9 @@ using ToDoApi.Database.Models;
 
 namespace TodoAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     [Authorize]
+    [Route("api/[controller]")]
+    [ApiController]    
     public class LabelsController : ControllerBase
     {
         private readonly ILabelRepository _labelRepository;

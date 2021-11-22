@@ -1,3 +1,6 @@
+using CorrelationId;
+using CorrelationId.DependencyInjection;
+using CorrelationId.HttpClient;
 using HotChocolate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,10 +10,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
 using TodoAPI.Graphql;
 using TodoAPI.Queries;
 using TodoAPI.Types;
 using TodoAPI.Utilities;
+using TodoAPI.Utilities.Handlers;
 using ToDoApi.DataAccess.Repositories;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Context;
@@ -36,6 +41,24 @@ namespace TODOAPI
             services.AddScoped<ILabelRepository, LabelRepository>();
             services.AddScoped<TodoQuery>();
             services.AddScoped<TodoListTypes>();
+            services.AddTransient<NoOpDelegatingHandler>();
+
+            services.AddHttpClient("ToDoApi")
+                .AddCorrelationIdForwarding() 
+                .AddHttpMessageHandler<NoOpDelegatingHandler>();
+
+            services.AddDefaultCorrelationId(options =>
+            {
+                options.CorrelationIdGenerator = () => Guid.NewGuid().ToString();
+                options.AddToLoggingScope = true;
+                options.EnforceHeader = false;
+                options.IgnoreRequestHeader = false;
+                options.IncludeInResponse = true;
+                options.RequestHeader = "Custom-Correlation-Id";
+                options.ResponseHeader = "X-Correlation-Id";
+                options.UpdateTraceIdentifier = false;
+            });
+
 
             services.AddGraphQLServer()
                 .AddType<TodoItemType>()
@@ -68,11 +91,12 @@ namespace TODOAPI
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoApi");
                 });
             }
-
+            app.UseCorrelationId();
             app.UseAuthentication();
             app.UseRouting();
             app.UseMiddleware<ErrorHandlerMiddleware>();
             app.UseAuthorization();
+            app.ConfigureExceptionMiddleware();
             //app.UseGraphQL.Playground();
             app.UseEndpoints(endpoints =>
             {
