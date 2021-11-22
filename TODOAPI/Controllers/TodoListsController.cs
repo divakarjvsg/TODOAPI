@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoAPI.Models;
+using TodoAPI.Models.UpdateModels;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Models;
 
@@ -93,7 +94,7 @@ namespace TodoAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("{id:int}")]
         [AcceptVerbs("PUT","PATCH")]
-        public async Task<ActionResult<TodoLists>> UpdateTodoList(int id, TodoLists todoList)
+        public async Task<ActionResult<TodoLists>> UpdateTodoList(int id, UpdateTodoListModel todoList)
         {
             if (id != todoList.Id)
                 return BadRequest("Item ID mismatch");
@@ -104,8 +105,9 @@ namespace TodoAPI.Controllers
             {
                 return NotFound($"Item with Id = {id} not found in ToDoList");
             }
+            itemToUpdate.TodoListName = todoList.TodoListName;
             Logger.LogInformation($"Item updated in ToDoList with ID:{id}");
-            return await _todoListRepository.UpdateTodoList(todoList);
+            return await _todoListRepository.UpdateTodoList(itemToUpdate);
         }
 
 

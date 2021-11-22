@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TodoAPI.Models;
 using ToDoApi.DataAccess.Repositories.Contracts;
@@ -34,7 +35,7 @@ namespace TodoAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult> GetLabels([FromQuery] PageParmeters pageParmeters)
-        {
+        {            
             var result = await _labelRepository.GetLabels(pageParmeters);
             Logger.LogInformation($"Labels fetched");
             return Ok(result);

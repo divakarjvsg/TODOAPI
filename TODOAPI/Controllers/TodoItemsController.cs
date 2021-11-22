@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoAPI.Models;
+using TodoAPI.Models.UpdateModels;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Models;
 
@@ -104,7 +105,7 @@ namespace TodoAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Route("{id:int}")]
         [AcceptVerbs("PUT", "PATCH")]
-        public async Task<ActionResult<TodoItems>> UpdateTodoItem(int id, TodoItems todoItem)
+        public async Task<ActionResult<TodoItems>> UpdateTodoItem(int id, UpdateTodoItemModel todoItem)
         {
             if (id != todoItem.ItemID)
                 return BadRequest("Item ID mismatch");
@@ -116,7 +117,9 @@ namespace TodoAPI.Controllers
             }
             Logger.LogInformation($"Item updated in ToDoItems with ID:{id}");
 
-            return await _todoItemsRepository.UpdateTodoItem(todoItem);
+            itemToUpdate.ItemName = todoItem.ItemName;
+            itemToUpdate.Id = todoItem.Id;
+            return await _todoItemsRepository.UpdateTodoItem(itemToUpdate);
         }
 
 

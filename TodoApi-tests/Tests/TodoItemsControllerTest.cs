@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using TodoAPI.Controllers;
 using TodoAPI.Models;
+using TodoAPI.Models.UpdateModels;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Models;
 
@@ -50,7 +51,7 @@ namespace TodoApi_tests.Tests
         [Test]
         public async Task UpdateTodoItemTest()
         {
-            var result = await _todoItemsController.UpdateTodoItem(100,new TodoItems() { ItemName = "test", ItemID = 100,Id=1007 });
+            var result = await _todoItemsController.UpdateTodoItem(100,new UpdateTodoItemModel() { ItemName = "test", ItemID = 100,Id=1007 });
             Assert.IsNotNull(result);
             Assert.AreEqual(100, result.Value.ItemID);
         }

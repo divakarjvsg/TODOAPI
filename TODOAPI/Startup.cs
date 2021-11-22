@@ -1,7 +1,8 @@
 using CorrelationId;
 using CorrelationId.DependencyInjection;
 using CorrelationId.HttpClient;
-using HotChocolate;
+using HotChocolate.AspNetCore;
+using HotChocolate.AspNetCore.Playground;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Threading.Tasks;
 using TodoAPI.Graphql;
 using TodoAPI.Queries;
 using TodoAPI.Types;
@@ -40,6 +42,7 @@ namespace TODOAPI
             services.AddScoped<ITodoItemsRepository, TodoItemsRepository>();
             services.AddScoped<ILabelRepository, LabelRepository>();
             services.AddScoped<TodoQuery>();
+            services.AddScoped<TodoMutation>();
             services.AddScoped<TodoListTypes>();
             services.AddTransient<NoOpDelegatingHandler>();
 
@@ -58,14 +61,19 @@ namespace TODOAPI
                 options.ResponseHeader = "X-Correlation-Id";
                 options.UpdateTraceIdentifier = false;
             });
-
-
-            services.AddGraphQLServer()
-                .AddType<TodoItemType>()
-                .AddType<TodoListTypes>()
-                .AddQueryType<TodoQuery>().AddMutationType<TodoMutation>();
+            services.AddGraphQLServices();
 
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+            });
+
             services.AddSwaggerGen(c =>
             {                
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -90,6 +98,11 @@ namespace TODOAPI
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoApi");
                 });
+                app.UsePlayground(new PlaygroundOptions
+                {
+                    QueryPath = "/api",
+                    Path = "/playground"
+                });
             }
             app.UseCorrelationId();
             app.UseAuthentication();
@@ -97,11 +110,10 @@ namespace TODOAPI
             app.UseMiddleware<ErrorHandlerMiddleware>();
             app.UseAuthorization();
             app.ConfigureExceptionMiddleware();
-            //app.UseGraphQL.Playground();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
-                endpoints.MapGraphQL("/graphql");
+                endpoints.MapGraphQL();
             });
         }
     }
