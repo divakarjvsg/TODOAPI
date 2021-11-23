@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TodoAPI.Models.UpdateModels
 {
@@ -13,7 +9,7 @@ namespace TodoAPI.Models.UpdateModels
 
         [Required]
         public string ItemName { get; set; }
-        
+
         [Required]
         public int Id { get; set; }
     }

@@ -10,7 +10,7 @@ namespace TodoAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20211111045144_assignLabel")]
-    partial class assignLabel
+    partial class AssignLabel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

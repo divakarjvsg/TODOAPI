@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using ToDoApi.Database.Context;
 
 namespace ToDoApi.Database
@@ -12,19 +11,9 @@ namespace ToDoApi.Database
         {
             using (var scope = host.Services.CreateScope())
             {
-                using (var appContext = scope.ServiceProvider.GetRequiredService<AppDbContext>())
-                {
-                    try
-                    {
-                        appContext.Database.Migrate();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw ex;
-                    }
-                }
+                using var appContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                appContext.Database.Migrate();
             }
-
             return host;
         }
     }

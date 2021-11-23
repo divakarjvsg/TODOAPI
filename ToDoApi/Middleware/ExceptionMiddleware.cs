@@ -39,7 +39,6 @@ namespace TodoAPI.Middleware
             _logger.LogError($"Something went wrong: {exception}, Correlation id: {correlationId}");
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
             return context.Response.WriteAsync(new ErrorDetails()
             {
                 StatusCode = context.Response.StatusCode,

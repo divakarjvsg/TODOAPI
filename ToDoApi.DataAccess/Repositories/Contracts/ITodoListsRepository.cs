@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using ToDoApi.Database.Models;
 
 namespace ToDoApi.DataAccess.Repositories.Contracts
 {
-    public interface ITodoListRepository
+    public interface ITodoListsRepository
     {
         Task<IEnumerable<TodoLists>> Search(string TodoListName);
         Task<IEnumerable<TodoLists>> GetTodoLists(PageParmeters pageParmeters);

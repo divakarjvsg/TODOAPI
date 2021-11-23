@@ -8,46 +8,46 @@ namespace TodoAPI.Queries
 {
     public class TodoQuery
     {
-        private readonly ITodoListRepository todoListRepository;
-        private readonly ITodoItemsRepository todoItemsRepository;
-        private readonly ILabelRepository labelRepository;
-        private readonly PageParmeters pageParmeters;
-        public TodoQuery([Service]ITodoListRepository todoListRepository, [Service]ITodoItemsRepository todoItemsRepository, [Service]ILabelRepository labelRepository)
+        private readonly ITodoListsRepository _todoListRepository;
+        private readonly ITodoItemsRepository _todoItemsRepository;
+        private readonly ILabelsRepository _labelRepository;
+        private readonly PageParmeters _pageParmeters;
+        public TodoQuery([Service] ITodoListsRepository todoListRepository, [Service] ITodoItemsRepository todoItemsRepository, [Service] ILabelsRepository labelRepository)
         {
-            pageParmeters = new PageParmeters();
-            this.todoListRepository = todoListRepository;
-            this.todoItemsRepository = todoItemsRepository;
-            this.labelRepository = labelRepository;
+            _pageParmeters = new PageParmeters();
+            _todoListRepository = todoListRepository;
+            _todoItemsRepository = todoItemsRepository;
+            _labelRepository = labelRepository;
         }
 
         public async Task<IEnumerable<Labels>> GetAllLabels()
         {
-            return await labelRepository.GetLabels(pageParmeters);
+            return await _labelRepository.GetLabels(_pageParmeters);
         }
 
         public async Task<Labels> GetLabelById(int labelId)
         {
-            return await labelRepository.GetLabel(labelId);
+            return await _labelRepository.GetLabel(labelId);
         }
 
         public async Task<IEnumerable<TodoItems>> GetAllToDoItems()
         {
-            return await todoItemsRepository.GetTodoItems(pageParmeters);
+            return await _todoItemsRepository.GetTodoItems(_pageParmeters);
         }
 
         public async Task<TodoItems> GetToDoItemById(int ItemId)
         {
-            return await todoItemsRepository.GetTodoItem(ItemId);
+            return await _todoItemsRepository.GetTodoItem(ItemId);
         }
 
         public async Task<IEnumerable<TodoLists>> GetAllToDoLists()
-        {            
-            return await todoListRepository.GetTodoLists(pageParmeters);
+        {
+            return await _todoListRepository.GetTodoLists(_pageParmeters);
         }
 
         public async Task<TodoLists> GetToDoListById(int ListId)
         {
-            return await todoListRepository.GetTodoList(ListId);
+            return await _todoListRepository.GetTodoList(ListId);
         }
     }
 }

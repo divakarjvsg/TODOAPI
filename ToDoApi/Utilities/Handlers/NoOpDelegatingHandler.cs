@@ -11,10 +11,6 @@ namespace TodoAPI.Utilities.Handlers
     {
         private readonly ILogger<NoOpDelegatingHandler> _logger;
 
-        /// <summary>
-        /// Create new instance of <see cref="NoOpDelegatingHandler"/> class.
-        /// </summary>
-        /// <param name="logger">Logger.</param>
         public NoOpDelegatingHandler(ILogger<NoOpDelegatingHandler> logger) => _logger = logger;
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -27,9 +23,7 @@ namespace TodoAPI.Utilities.Handlers
             {
                 _logger.LogInformation("Request does not have a correlation ID header.");
             }
-
             var response = new HttpResponseMessage(HttpStatusCode.OK);
-
             return Task.FromResult(response);
         }
     }

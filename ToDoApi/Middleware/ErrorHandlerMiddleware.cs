@@ -12,12 +12,11 @@ namespace TodoAPI.Utilities
     public class ErrorHandlerMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<ErrorHandlerMiddleware> logger;
-
+        private readonly ILogger<ErrorHandlerMiddleware> _logger;
         public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
         {
             _next = next;
-            this.logger = logger;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -31,13 +30,12 @@ namespace TodoAPI.Utilities
                 var response = context.Response;
                 response.ContentType = "application/json";
                 string strErrorMsg = string.Empty;
-
                 switch (error)
                 {
-                    case AppException e:
+                    case AppException _:
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
                         break;
-                    case KeyNotFoundException e:
+                    case KeyNotFoundException _:
                         response.StatusCode = (int)HttpStatusCode.NotFound;
                         break;
                     default:
@@ -47,9 +45,8 @@ namespace TodoAPI.Utilities
                             break;
                         }
                 }
-
-                logger.LogError("Error Message : " + error.Message +"|| Stact Trace:"+error.StackTrace);
-                var result = JsonSerializer.Serialize(new { message = strErrorMsg.Length>1? strErrorMsg: error?.Message });
+                _logger.LogError("Error Message : " + error.Message + "|| Stact Trace:" + error.StackTrace);
+                var result = JsonSerializer.Serialize(new { message = strErrorMsg.Length > 1 ? strErrorMsg : error?.Message });
                 await response.WriteAsync(result);
             }
         }

@@ -12,14 +12,14 @@ namespace TodoApi_tests.Tests
 {
     class TodoListsControllerTest
     {
-        private Mock<ITodoListRepository> _todolistrepository;        
+        private Mock<ITodoListsRepository> _todolistrepository;
         private readonly TodoLists _todolist = new TodoLists { Id = 100, TodoListName = "test" };
         private TodoListsController _todoListsController;
 
         [SetUp]
-        public void setup()
+        public void SetUp()
         {
-            _todolistrepository = new Mock<ITodoListRepository>();
+            _todolistrepository = new Mock<ITodoListsRepository>();
             var _loggerStub = new Mock<ILogger<TodoListsController>>();
 
             _todoListsController = new TodoListsController(_todolistrepository.Object, _loggerStub.Object);

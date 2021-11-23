@@ -15,14 +15,13 @@ using System;
 using System.Threading.Tasks;
 using TodoAPI.Graphql;
 using TodoAPI.Queries;
-using TodoAPI.Types;
 using TodoAPI.Utilities;
 using TodoAPI.Utilities.Handlers;
 using ToDoApi.DataAccess.Repositories;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Context;
 
-namespace TODOAPI
+namespace ToDoApi
 {
     public class Startup
     {
@@ -38,16 +37,15 @@ namespace TODOAPI
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("ConnectionString")));
             services.AddHttpContextAccessor();
-            services.AddScoped<ITodoListRepository, TodoListRepository>();
+            services.AddScoped<ITodoListsRepository, TodoListsRepository>();
             services.AddScoped<ITodoItemsRepository, TodoItemsRepository>();
-            services.AddScoped<ILabelRepository, LabelRepository>();
+            services.AddScoped<ILabelsRepository, LabelsRepository>();
             services.AddScoped<TodoQuery>();
             services.AddScoped<TodoMutation>();
-            services.AddScoped<TodoListTypes>();
             services.AddTransient<NoOpDelegatingHandler>();
 
             services.AddHttpClient("ToDoApi")
-                .AddCorrelationIdForwarding() 
+                .AddCorrelationIdForwarding()
                 .AddHttpMessageHandler<NoOpDelegatingHandler>();
 
             services.AddDefaultCorrelationId(options =>
@@ -75,7 +73,7 @@ namespace TODOAPI
             });
 
             services.AddSwaggerGen(c =>
-            {                
+            {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",

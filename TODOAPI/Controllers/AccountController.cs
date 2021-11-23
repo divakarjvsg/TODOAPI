@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using System.Threading.Tasks;
 using ToDoApi.Database.Models;
 
@@ -12,7 +13,7 @@ namespace TodoAPI.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
-        
+
         public AccountController(UserManager<IdentityUser> _userManager, SignInManager<IdentityUser> _signInManager)
         {
             this._userManager = _userManager;
@@ -36,10 +37,10 @@ namespace TodoAPI.Controllers
                     await _signInManager.SignInAsync(user, true);
                     return StatusCode(StatusCodes.Status200OK, "User created successfully");
                 }
-                string errorMessage = "";
-                foreach(var error in result.Errors)
+                StringBuilder errorMessage = new StringBuilder();
+                foreach (var error in result.Errors)
                 {
-                    errorMessage += error.Description + "\n";
+                    errorMessage.Append(error.Description + "\n");
                 }
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error in creating the User : {errorMessage} ");
             }
@@ -56,8 +57,8 @@ namespace TodoAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(loginModel.Username, loginModel.Password,true,false);
-                
+                var result = await _signInManager.PasswordSignInAsync(loginModel.Username, loginModel.Password, true, false);
+
                 if (result.Succeeded)
                 {
                     return StatusCode(StatusCodes.Status200OK, "User login success ");

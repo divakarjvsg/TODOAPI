@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -6,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TodoAPI.Controllers;
+using TodoAPI.Models.CreateModels;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Models;
 
@@ -13,20 +13,21 @@ namespace TodoApi_tests
 {
     public class LabelsControllerTest
     {
-        private Mock<ILabelRepository> _labelRepository;
+        private Mock<ILabelsRepository> _labelRepository;
         private readonly Labels _label = new Labels { LabelId = 1, LabelName = "test" };
+        private readonly List<AssignLabelsModel> _assignlabels = new List<AssignLabelsModel>();
         private readonly List<Labels> _labels = new List<Labels>();
-        private LabelsController _labelsController;        
-        
+        private LabelsController _labelsController;
+
         [SetUp]
-        public void setup()
+        public void SetUp()
         {
-             _labelRepository = new Mock<ILabelRepository>();
-            var _todolistrepository = new Mock<ITodoListRepository>();
+            _labelRepository = new Mock<ILabelsRepository>();
+            var _todolistrepository = new Mock<ITodoListsRepository>();
             var _todoitemrepository = new Mock<ITodoItemsRepository>();
             var loggerStub = new Mock<ILogger<LabelsController>>();
-            _labels.Add(new Labels { LabelId = 1004 });
-            _labels.Add(new Labels { LabelId = 1005 });
+            _assignlabels.Add(new AssignLabelsModel { LabelId = 1004 });
+            _assignlabels.Add(new AssignLabelsModel { LabelId = 1005 });
 
             _labelsController = new LabelsController(_labelRepository.Object, _todoitemrepository.Object, _todolistrepository.Object, loggerStub.Object);
             _labelRepository.Setup(p => p.AddLabels(It.IsAny<Labels>())).Returns(Task.FromResult(_label));
@@ -40,7 +41,7 @@ namespace TodoApi_tests
         [Test]
         public async Task AssignLabeltoListTest()
         {
-            var result = await _labelsController.AssignLabelstoList(new Guid("2ac5921c-fb30-4380-b6a1-d449517f2430"),_labels);
+            var result = await _labelsController.AssignLabelstoList(1004, _assignlabels);
             Assert.IsNotNull(result);
             Assert.AreEqual("Labels Assigned to List", ((Microsoft.AspNetCore.Mvc.ObjectResult)result).Value);
         }
@@ -48,7 +49,7 @@ namespace TodoApi_tests
         [Test]
         public async Task AssignLabeltoItemTest()
         {
-            var result = await _labelsController.AssignLabelstoItem(new Guid("de334ffa-efa8-436b-bf16-438e00cf030c"), _labels);
+            var result = await _labelsController.AssignLabelstoItem(1005, _assignlabels);
             Assert.IsNotNull(result);
             Assert.AreEqual("Labels Assigned to Item", ((Microsoft.AspNetCore.Mvc.ObjectResult)result).Value);
         }
@@ -57,7 +58,7 @@ namespace TodoApi_tests
         public async Task AddLabelTest()
         {
             var result = await _labelsController.AddLabels(new TodoAPI.Models.LabelModel() { LabelName = "test" });
-            Assert.IsNotNull(result);            
+            Assert.IsNotNull(result);
             Assert.AreEqual(1, ((ToDoApi.Database.Models.Labels)((Microsoft.AspNetCore.Mvc.ObjectResult)result.Result).Value).LabelId);
         }
 

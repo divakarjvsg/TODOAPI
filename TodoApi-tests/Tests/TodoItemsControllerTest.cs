@@ -18,14 +18,14 @@ namespace TodoApi_tests.Tests
         private TodoItemsController _todoItemsController;
 
         [SetUp]
-        public void setup()
+        public void SetUp()
         {
             _todoitemsrepository = new Mock<ITodoItemsRepository>();
-            var _todolistrepository = new Mock<ITodoListRepository>();
+            var _todolistrepository = new Mock<ITodoListsRepository>();
             var _loggerStub = new Mock<ILogger<TodoItemsController>>();
 
             _todoItemsController = new TodoItemsController(_todoitemsrepository.Object, _todolistrepository.Object, _loggerStub.Object);
-            _todolistrepository.Setup(p=>p.GetTodoList(It.IsAny<int>())).Returns(Task.FromResult(_todolist));
+            _todolistrepository.Setup(p => p.GetTodoList(It.IsAny<int>())).Returns(Task.FromResult(_todolist));
             _todoitemsrepository.Setup(p => p.AddTodoItem(It.IsAny<TodoItems>())).Returns(Task.FromResult(_todoitem));
             _todoitemsrepository.Setup(p => p.DeleteTodoItem(It.IsAny<int>())).Returns(Task.FromResult(100));
             _todoitemsrepository.Setup(p => p.GetTodoItem(It.IsAny<int>())).Returns(Task.FromResult(_todoitem));
@@ -35,7 +35,7 @@ namespace TodoApi_tests.Tests
         [Test]
         public async Task AddTodoItemTest()
         {
-            var result = await _todoItemsController.CreateTodoItem(new TodoItemModel() { ItemName = "test",ListId=1007 });
+            var result = await _todoItemsController.CreateTodoItem(new TodoItemModel() { ItemName = "test", ListId = 1007 });
             Assert.IsNotNull(result);
             Assert.AreEqual(100, ((ToDoApi.Database.Models.TodoItems)((Microsoft.AspNetCore.Mvc.ObjectResult)result.Result).Value).ItemID);
         }
@@ -51,7 +51,7 @@ namespace TodoApi_tests.Tests
         [Test]
         public async Task UpdateTodoItemTest()
         {
-            var result = await _todoItemsController.UpdateTodoItem(100,new UpdateTodoItemModel() { ItemName = "test", ItemID = 100,Id=1007 });
+            var result = await _todoItemsController.UpdateTodoItem(100, new UpdateTodoItemModel() { ItemName = "test", ItemID = 100, Id = 1007 });
             Assert.IsNotNull(result);
             Assert.AreEqual(100, result.Value.ItemID);
         }

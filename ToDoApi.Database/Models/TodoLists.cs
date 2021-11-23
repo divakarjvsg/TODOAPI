@@ -12,13 +12,13 @@ namespace ToDoApi.Database.Models
         public string TodoListName { get; set; }
         public DateTime CreatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }
-        
+
         [Required]
         public Guid ListGuid { get; set; }
-        
+
         [Required]
         public Guid CreatedBy { get; set; }
 
-        public List<TodoItems> todoItems { get; set; }        
+        public ICollection<TodoItems> TodoItems { get; set; }
     }
 }

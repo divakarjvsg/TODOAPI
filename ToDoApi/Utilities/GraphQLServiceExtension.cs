@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using TodoAPI.Graphql;
 using TodoAPI.Queries;
-using TodoAPI.Types;
 
 namespace TodoAPI.Utilities
 {

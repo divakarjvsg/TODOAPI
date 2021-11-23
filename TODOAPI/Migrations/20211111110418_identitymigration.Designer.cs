@@ -10,7 +10,7 @@ namespace TodoAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20211111110418_identitymigration")]
-    partial class identitymigration
+    partial class IdentityMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

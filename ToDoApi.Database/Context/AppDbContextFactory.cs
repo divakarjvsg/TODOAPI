@@ -5,8 +5,8 @@ using System.IO;
 
 namespace ToDoApi.Database.Context
 {
-    class AppDbContextFactory: IDesignTimeDbContextFactory<AppDbContext>
-    {      
+    class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+    {
         public AppDbContext CreateDbContext(string[] args)
         {
             var configuration = new ConfigurationBuilder()

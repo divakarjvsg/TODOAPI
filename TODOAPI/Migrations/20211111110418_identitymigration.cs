@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
 namespace TodoAPI.Migrations
 {
-    public partial class identitymigration : Migration
+    public partial class IdentityMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -5,12 +5,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20211123041400_Relation.cs" />
+    <Compile Remove="Migrations\20211123041400_Relation.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.21" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.21" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.21" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.21" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.21" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
