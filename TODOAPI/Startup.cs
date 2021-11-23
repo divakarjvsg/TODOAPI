@@ -1,6 +1,4 @@
 using CorrelationId;
-using HotChocolate.AspNetCore;
-using HotChocolate.AspNetCore.Playground;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TodoAPI.Configuration;
+using TodoAPI.Middleware;
 using TodoAPI.Utilities;
 using ToDoApi.Database.Context;
 
@@ -50,6 +49,7 @@ namespace ToDoApi
                 });                
             }
             app.UseCorrelationId();
+            app.UseContentLocationMiddleware();
             app.UseAuthentication();
             app.UseRouting();
             app.UseMiddleware<ErrorHandlerMiddleware>();
