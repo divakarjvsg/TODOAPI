@@ -20,14 +20,14 @@ namespace TodoAPI.Controllers
         private readonly ILabelsRepository _labelRepository;
         private readonly ITodoItemsRepository _todoItemsRepository;
         private readonly ITodoListsRepository _todoListRepository;
-        private ILogger Logger { get; }
+        private ILogger _logger { get; }
 
-        public LabelsController(ILabelsRepository _labelRepository, ITodoItemsRepository _todoItemsRepository, ITodoListsRepository _todoListRepository, ILogger<LabelsController> logger)
+        public LabelsController(ILabelsRepository labelRepository, ITodoItemsRepository todoItemsRepository, ITodoListsRepository todoListRepository, ILogger<LabelsController> logger)
         {
-            this._labelRepository = _labelRepository;
-            this._todoItemsRepository = _todoItemsRepository;
-            this._todoListRepository = _todoListRepository;
-            Logger = logger;
+            _labelRepository = labelRepository;
+            _todoItemsRepository = todoItemsRepository;
+            _todoListRepository = todoListRepository;
+            _logger = logger;
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -36,7 +36,7 @@ namespace TodoAPI.Controllers
         public async Task<ActionResult> GetLabels([FromQuery] PageParmeters pageParmeters)
         {
             var result = await _labelRepository.GetLabels(pageParmeters);
-            Logger.LogInformation($"Labels fetched");
+            _logger.LogInformation($"Labels fetched");
             return Ok(result);
         }
 
@@ -80,21 +80,20 @@ namespace TodoAPI.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("AssignLabeltoItem/{ItemId:int}")]
+        [Route("AssignLabeltoItem/{itemId:int}")]
         [HttpPost]
-        public async Task<ActionResult> AssignLabelstoItem(int ItemId, List<AssignLabelsModel> SelectedLabels)
+        public async Task<ActionResult> AssignLabelstoItem(int itemId, List<AssignLabelsModel> selectedLabels)
         {
-            var item = await _todoItemsRepository.GetTodoItem(ItemId);
+            var item = await _todoItemsRepository.GetTodoItem(itemId);
             if (item == null)
             {
-                Logger.LogInformation($"No item in ToDoItems with ID:{ItemId}");
-                return StatusCode(StatusCodes.Status204NoContent,
-                            "Invalid ItemID");
+                _logger.LogInformation($"No item in ToDoItems with ID:{itemId}");
+                return StatusCode(StatusCodes.Status404NotFound, "Invalid ItemID");
             }
             List<Labels> TempLabels = new List<Labels>();
-            foreach (var label in SelectedLabels)
+            foreach (var label in selectedLabels)
             {
                 var labelresult = await _labelRepository.GetLabel(label.LabelId);
                 if (labelresult == null)
@@ -108,26 +107,24 @@ namespace TodoAPI.Controllers
 
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("AssignLabeltoList/{ListId:int}")]
+        [Route("AssignLabeltoList/{listId:int}")]
         [HttpPost]
-        public async Task<ActionResult> AssignLabelstoList(int ListId, List<AssignLabelsModel> SelectedLabels)
+        public async Task<ActionResult> AssignLabelstoList(int listId, List<AssignLabelsModel> SelectedLabels)
         {
-            var listitem = await _todoListRepository.GetTodoList(ListId);
+            var listitem = await _todoListRepository.GetTodoList(listId);
             if (listitem == null)
             {
-                Logger.LogInformation($"No list in ToDoList with ID:{ListId}");
-                return StatusCode(StatusCodes.Status204NoContent,
-                            "Invalid ListID");
+                _logger.LogInformation($"No list in ToDoList with ID:{listId}");
+                return StatusCode(StatusCodes.Status404NotFound, "Invalid ListID");
             }
             List<Labels> TempLabels = new List<Labels>();
             foreach (var label in SelectedLabels)
             {
                 var labelresult = await _labelRepository.GetLabel(label.LabelId);
                 if (labelresult == null)
-                    return StatusCode(StatusCodes.Status204NoContent,
-                                "Invalid Label(s)");
+                    return StatusCode(StatusCodes.Status404NotFound, "Invalid Label(s)");
                 TempLabels.Add(labelresult);
             }
             await _labelRepository.AssignLabel(listitem.ListGuid, TempLabels);
@@ -135,18 +132,17 @@ namespace TodoAPI.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("LabelsAssignedtoList/{ListId:int}")]
+        [Route("LabelsAssignedtoList/{listId:int}")]
         [HttpGet]
-        public async Task<ActionResult<LabelsListModel>> LabelsAssignedtoList(int ListId)
+        public async Task<ActionResult<LabelsListModel>> LabelsAssignedtoList(int listId)
         {
-            var listitem = await _todoListRepository.GetTodoList(ListId);
+            var listitem = await _todoListRepository.GetTodoList(listId);
             if (listitem == null)
             {
-                Logger.LogInformation($"No list in ToDoList with ListID:{ListId}");
-                return StatusCode(StatusCodes.Status204NoContent,
-                            "Invalid ListID");
+                _logger.LogInformation($"No list in ToDoList with ListID:{listId}");
+                return StatusCode(StatusCodes.Status404NotFound, "Invalid ListID");
             }
             LabelsListModel assignedLabels = new LabelsListModel
             {
@@ -158,18 +154,17 @@ namespace TodoAPI.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("LabelsAssignedtoItem/{ItemId:int}")]
+        [Route("LabelsAssignedtoItem/{itemId:int}")]
         [HttpGet]
-        public async Task<ActionResult<LabelsItemModel>> LabelsAssignedtoItem(int ItemId)
+        public async Task<ActionResult<LabelsItemModel>> LabelsAssignedtoItem(int itemId)
         {
-            var item = await _todoItemsRepository.GetTodoItem(ItemId);
+            var item = await _todoItemsRepository.GetTodoItem(itemId);
             if (item == null)
             {
-                Logger.LogInformation($"No Item in ToDoItem with ItemId:{ItemId}");
-                return StatusCode(StatusCodes.Status204NoContent,
-                            "Invalid ItemId");
+                _logger.LogInformation($"No Item in ToDoItem with ItemId:{itemId}");
+                return StatusCode(StatusCodes.Status404NotFound, "Invalid ItemId");
             }
             LabelsItemModel assignedLabels = new LabelsItemModel
             {
@@ -185,7 +180,7 @@ namespace TodoAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("{labelId:int}")]
-        public async Task<ActionResult> UpdateLabel(int labelId,[FromBody]Labels labels)
+        public async Task<ActionResult> UpdateLabel(int labelId, [FromBody] Labels labels)
         {
             if (labelId != labels.LabelId)
                 return BadRequest();

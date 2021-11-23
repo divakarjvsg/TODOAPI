@@ -20,9 +20,9 @@ namespace TodoApi_tests.Tests
         public void SetUp()
         {
             _todolistrepository = new Mock<ITodoListsRepository>();
-            var _loggerStub = new Mock<ILogger<TodoListsController>>();
+            var loggerStub = new Mock<ILogger<TodoListsController>>();
 
-            _todoListsController = new TodoListsController(_todolistrepository.Object, _loggerStub.Object);
+            _todoListsController = new TodoListsController(_todolistrepository.Object, loggerStub.Object);
             _todolistrepository.Setup(p => p.GetTodoList(It.IsAny<int>())).Returns(Task.FromResult(_todolist));
             _todolistrepository.Setup(p => p.AddTodoList(It.IsAny<TodoLists>())).Returns(Task.FromResult(_todolist));
             _todolistrepository.Setup(p => p.DeleteTodoList(It.IsAny<int>())).Returns(Task.FromResult(1007));

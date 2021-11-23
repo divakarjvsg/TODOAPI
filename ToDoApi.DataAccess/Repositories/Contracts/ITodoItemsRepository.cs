@@ -7,14 +7,14 @@ namespace ToDoApi.DataAccess.Repositories.Contracts
 {
     public interface ITodoItemsRepository
     {
-        Task<IEnumerable<TodoItems>> Search(string ItemName);
+        Task<IEnumerable<TodoItems>> Search(string itemName);
         Task<IEnumerable<TodoItems>> GetTodoItems(PageParmeters pageParmeters);
-        Task<TodoItems> GetTodoItem(int ItemId);
-        Task<TodoItems> GetTodoItemByName(string ItemName);
+        Task<TodoItems> GetTodoItem(int itemId);
+        Task<TodoItems> GetTodoItemByName(string itemName);
         Task<TodoItems> AddTodoItem(TodoItems todoItem);
         Task<TodoItems> UpdateTodoItem(TodoItems todoItem);
-        Task DeleteTodoItem(int ItemId);
-        Task<TodoItems> GetTodoItemByGuid(Guid ItemGuid);
-        Task<IEnumerable<TodoItems>> GetTodoItemforListID(int ListId);
+        Task DeleteTodoItem(int itemId);
+        Task<TodoItems> GetTodoItemByGuid(Guid itemGuid);
+        Task<IEnumerable<TodoItems>> GetTodoItemforListID(int listId);
     }
 }

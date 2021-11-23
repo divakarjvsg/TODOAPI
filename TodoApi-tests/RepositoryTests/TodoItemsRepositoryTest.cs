@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ToDoApi.DataAccess.Repositories;
@@ -15,11 +16,10 @@ namespace TodoApi_tests.RepositoryTests
         private Mock<IHttpContextAccessor> _httpContextAccessor;
         private ITodoItemsRepository _todoItemsContract;
         private readonly TodoItems _todoItem = new TodoItems { ItemID = 1, ItemName = "test", Id = 7 };
-        private static readonly ClaimsPrincipal user = new ClaimsPrincipal(
-                        new ClaimsIdentity(
-                            new Claim[] { new Claim("MyClaim", "3f14083e-c50b-4051-a445-18cee883323f") },
-                            "Basic")
-                        );
+
+        private static readonly ClaimsPrincipal user =
+            new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim("MyClaim", "3f14083e-c50b-4051-a445-18cee883323f") }, "Basic"));
+
         [SetUp]
         public void Setup()
         {
@@ -46,7 +46,7 @@ namespace TodoApi_tests.RepositoryTests
         {
             TodoItems result = await _todoItemsContract.UpdateTodoItem(new TodoItems() { ItemName = "testforresult", ItemID = 1010 });
             Assert.IsNotNull(result);
-            Assert.AreEqual("testforresult", result.ItemName);
+            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy"), result.UpdatedDate.ToString("dd/MM/yyyy"));
         }
 
         [Test]

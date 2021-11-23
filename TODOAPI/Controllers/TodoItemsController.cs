@@ -19,13 +19,13 @@ namespace TodoAPI.Controllers
     {
         private readonly ITodoItemsRepository _todoItemsRepository;
         private readonly ITodoListsRepository _todoListRepository;
-        private readonly ILogger<TodoItemsController> Logger;
+        private readonly ILogger<TodoItemsController> _logger;
 
-        public TodoItemsController(ITodoItemsRepository _todoItemsRepository, ITodoListsRepository _todoListRepository, ILogger<TodoItemsController> logger)
+        public TodoItemsController(ITodoItemsRepository todoItemsRepository, ITodoListsRepository todoListRepository, ILogger<TodoItemsController> logger)
         {
-            this._todoItemsRepository = _todoItemsRepository;
-            this._todoListRepository = _todoListRepository;
-            Logger = logger;
+            _todoItemsRepository = todoItemsRepository;
+            _todoListRepository = todoListRepository;
+            _logger = logger;
         }
 
 
@@ -39,7 +39,7 @@ namespace TodoAPI.Controllers
             var result = await _todoItemsRepository.Search(name);
             if (result.Any())
             {
-                Logger.LogInformation($"Item fetched in ToDoItems with name:{name}");
+                _logger.LogInformation($"Item fetched in ToDoItems with name:{name}");
                 return Ok(result);
             }
             return NotFound();
@@ -52,22 +52,22 @@ namespace TodoAPI.Controllers
         public async Task<ActionResult> GetTodoItems([FromQuery] PageParmeters pageParmeters)
         {
             var result = await _todoItemsRepository.GetTodoItems(pageParmeters);
-            Logger.LogInformation($"Items fetched from ToDoItems");
+            _logger.LogInformation($"Items fetched from ToDoItems");
             return Ok(result);
         }
 
 
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<TodoItems>> GetTodoItem(int id)
+        [HttpGet("{itemId:int}")]
+        public async Task<ActionResult<TodoItems>> GetTodoItem(int itemId)
         {
-            var result = await _todoItemsRepository.GetTodoItem(id);
+            var result = await _todoItemsRepository.GetTodoItem(itemId);
             if (result == null)
             {
                 return NotFound();
             }
-            Logger.LogInformation($"Item fetched in ToDoItems with ID:{id}");
+            _logger.LogInformation($"Item fetched in ToDoItems with ID:{itemId}");
             return result;
         }
 
@@ -94,7 +94,7 @@ namespace TodoAPI.Controllers
             }
             var itemtoCreate = new TodoItems { ItemName = todoItem.ItemName, Id = todoItem.ListId };
             var createdItem = await _todoItemsRepository.AddTodoItem(itemtoCreate);
-            Logger.LogInformation($"Item created in ToDoItems with ID:{createdItem.ItemID}");
+            _logger.LogInformation($"Item created in ToDoItems with ID:{createdItem.ItemID}");
             return CreatedAtAction(nameof(GetTodoItem),
                 new { id = createdItem.ItemID }, createdItem);
         }
@@ -103,18 +103,18 @@ namespace TodoAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("{id:int}")]
+        [Route("{itemId:int}")]
         [AcceptVerbs("PUT", "PATCH")]
-        public async Task<ActionResult<TodoItems>> UpdateTodoItem(int id, UpdateTodoItemModel todoItem)
+        public async Task<ActionResult<TodoItems>> UpdateTodoItem(int itemId, UpdateTodoItemModel todoItem)
         {
-            if (id != todoItem.ItemID)
+            if (itemId != todoItem.ItemID)
                 return BadRequest("Item ID mismatch");
-            var itemToUpdate = await _todoItemsRepository.GetTodoItem(id);
+            var itemToUpdate = await _todoItemsRepository.GetTodoItem(itemId);
             if (itemToUpdate == null)
             {
-                return NotFound($"Item with Id = {id} not found");
+                return NotFound($"Item with Id = {itemId} not found");
             }
-            Logger.LogInformation($"Item updated in ToDoItems with ID:{id}");
+            _logger.LogInformation($"Item updated in ToDoItems with ID:{itemId}");
             itemToUpdate.ItemName = todoItem.ItemName;
             itemToUpdate.Id = todoItem.Id;
             return await _todoItemsRepository.UpdateTodoItem(itemToUpdate);
@@ -123,17 +123,17 @@ namespace TodoAPI.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> DeleteTodoItem(int id)
+        [HttpDelete("{itemId:int}")]
+        public async Task<ActionResult> DeleteTodoItem(int itemId)
         {
-            var itemToDelete = await _todoItemsRepository.GetTodoItem(id);
+            var itemToDelete = await _todoItemsRepository.GetTodoItem(itemId);
             if (itemToDelete == null)
             {
-                return NotFound($"Item with Id = {id} not found");
+                return NotFound($"Item with Id = {itemId} not found");
             }
-            await _todoItemsRepository.DeleteTodoItem(id);
-            Logger.LogInformation($"Item deleted in ToDoItems with ID:{id}");
-            return Ok($"Item with Id = {id} deleted");
+            await _todoItemsRepository.DeleteTodoItem(itemId);
+            _logger.LogInformation($"Item deleted in ToDoItems with ID:{itemId}");
+            return Ok($"Item with Id = {itemId} deleted");
         }
     }
 }

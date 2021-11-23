@@ -14,10 +14,10 @@ namespace TodoAPI.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
 
-        public AccountController(UserManager<IdentityUser> _userManager, SignInManager<IdentityUser> _signInManager)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
-            this._userManager = _userManager;
-            this._signInManager = _signInManager;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
 

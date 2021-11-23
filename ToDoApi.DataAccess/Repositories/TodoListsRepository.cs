@@ -15,6 +15,7 @@ namespace ToDoApi.DataAccess.Repositories
     {
         private readonly AppDbContext _appDbContext;
         private readonly Guid _loginUser;
+
         public TodoListsRepository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
         {
             _appDbContext = appDbContext;
@@ -27,7 +28,7 @@ namespace ToDoApi.DataAccess.Repositories
 
         public async Task<TodoLists> AddTodoList(TodoLists todoList)
         {
-            todoList.CreatedDateTime = DateTime.Now;
+            todoList.CreatedDate = DateTime.Now;
             todoList.ListGuid = Guid.NewGuid();
             todoList.CreatedBy = _loginUser;
             var result = await _appDbContext.TodoLists.AddAsync(todoList);
@@ -35,10 +36,10 @@ namespace ToDoApi.DataAccess.Repositories
             return result.Entity;
         }
 
-        public async Task DeleteTodoList(int Id)
+        public async Task DeleteTodoList(int listId)
         {
             var result = await _appDbContext.TodoLists
-                .FirstOrDefaultAsync(x => x.Id == Id && x.CreatedBy == _loginUser);
+                .FirstOrDefaultAsync(x => x.Id == listId && x.CreatedBy == _loginUser);
             if (result != null)
             {
                 var assignedresult = await _appDbContext.AssignLabels.Where(x => x.AssignedGuid == result.ListGuid).ToListAsync();
@@ -51,36 +52,37 @@ namespace ToDoApi.DataAccess.Repositories
             }
         }
 
-        public async Task<TodoLists> GetTodoList(int Id)
+        public async Task<TodoLists> GetTodoList(int listId)
         {
             return await _appDbContext.TodoLists.Include(x => x.TodoItems)
-                  .FirstOrDefaultAsync(y => y.Id == Id && y.CreatedBy == _loginUser);
+                  .FirstOrDefaultAsync(y => y.Id == listId && y.CreatedBy == _loginUser);
         }
 
-        public async Task<TodoLists> GetTodoListByName(string TodoListName)
+        public async Task<TodoLists> GetTodoListByName(string todoListName)
         {
             return await _appDbContext.TodoLists.Include(x => x.TodoItems)
-                .FirstOrDefaultAsync(x => x.TodoListName == TodoListName && x.CreatedBy == _loginUser);
+                .FirstOrDefaultAsync(x => x.TodoListName == todoListName && x.CreatedBy == _loginUser);
         }
 
-        public async Task<TodoLists> GetTodoListByGuid(Guid ItemGuid)
+        public async Task<TodoLists> GetTodoListByGuid(Guid itemGuid)
         {
             return await _appDbContext.TodoLists.Include(x => x.TodoItems)
-                .FirstOrDefaultAsync(x => x.ListGuid == ItemGuid);
+                .FirstOrDefaultAsync(x => x.ListGuid == itemGuid);
         }
+
         public async Task<IEnumerable<TodoLists>> GetTodoLists(PageParmeters pageParmeters)
         {
-            IQueryable<TodoLists> query = _appDbContext.TodoLists.Include(x=>x.TodoItems).Where(x => x.CreatedBy == _loginUser);
+            IQueryable<TodoLists> query = _appDbContext.TodoLists.Include(x => x.TodoItems).Where(x => x.CreatedBy == _loginUser);
             var result = await query.Skip((pageParmeters.PageNumber - 1) * pageParmeters.PageSize).Take(pageParmeters.PageSize).ToListAsync();
             return result;
         }
 
-        public async Task<IEnumerable<TodoLists>> Search(string TodoListName)
+        public async Task<IEnumerable<TodoLists>> Search(string todoListName)
         {
             IQueryable<TodoLists> query = _appDbContext.TodoLists.Where(x => x.CreatedBy == _loginUser);
-            if (!string.IsNullOrEmpty(TodoListName))
+            if (!string.IsNullOrEmpty(todoListName))
             {
-                query = query.Where(x => x.TodoListName.Contains(TodoListName));
+                query = query.Where(x => x.TodoListName.Contains(todoListName));
             }
             return await query.ToListAsync();
         }
@@ -92,7 +94,7 @@ namespace ToDoApi.DataAccess.Repositories
             if (result != null)
             {
                 result.TodoListName = todoList.TodoListName;
-                result.ModifiedDateTime = DateTime.Now;
+                result.UpdatedDate = DateTime.Now;
                 await _appDbContext.SaveChangesAsync();
                 return result;
             }

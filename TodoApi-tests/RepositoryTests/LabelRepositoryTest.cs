@@ -15,11 +15,9 @@ namespace TodoApi_tests.RepositoryTests
         private Mock<IHttpContextAccessor> _httpContextAccessor;
         private ILabelsRepository _labelContract;
         private readonly Labels _label = new Labels { LabelId = 1, LabelName = "test" };
-        private static readonly ClaimsPrincipal user = new ClaimsPrincipal(
-                        new ClaimsIdentity(
-                            new Claim[] { new Claim("MyClaim", "3f14083e-c50b-4051-a445-18cee883323f") },
-                            "Basic")
-                        );
+
+        private static readonly ClaimsPrincipal user =
+            new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim("MyClaim", "3f14083e-c50b-4051-a445-18cee883323f") }, "Basic"));
 
         [SetUp]
         public void Setup()

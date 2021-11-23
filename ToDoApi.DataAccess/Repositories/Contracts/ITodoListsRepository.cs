@@ -7,13 +7,13 @@ namespace ToDoApi.DataAccess.Repositories.Contracts
 {
     public interface ITodoListsRepository
     {
-        Task<IEnumerable<TodoLists>> Search(string TodoListName);
+        Task<IEnumerable<TodoLists>> Search(string todoListName);
         Task<IEnumerable<TodoLists>> GetTodoLists(PageParmeters pageParmeters);
-        Task<TodoLists> GetTodoList(int Id);
-        Task<TodoLists> GetTodoListByName(string TodoListName);
+        Task<TodoLists> GetTodoList(int listId);
+        Task<TodoLists> GetTodoListByName(string todoListName);
         Task<TodoLists> AddTodoList(TodoLists todoList);
         Task<TodoLists> UpdateTodoList(TodoLists todoList);
-        Task DeleteTodoList(int Id);
-        Task<TodoLists> GetTodoListByGuid(Guid ItemGuid);
+        Task DeleteTodoList(int listId);
+        Task<TodoLists> GetTodoListByGuid(Guid itemGuid);
     }
 }

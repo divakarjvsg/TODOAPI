@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TodoAPI.Graphql;
 using TodoAPI.Queries;
 
-namespace TodoAPI.Utilities
+namespace TodoAPI.Configuration
 {
     public static class GraphQLServiceExtension
     {

@@ -62,7 +62,6 @@ namespace TodoApi_tests
             Assert.AreEqual(1, ((ToDoApi.Database.Models.Labels)((Microsoft.AspNetCore.Mvc.ObjectResult)result.Result).Value).LabelId);
         }
 
-
         [Test]
         public async Task DeleteLabelTest()
         {

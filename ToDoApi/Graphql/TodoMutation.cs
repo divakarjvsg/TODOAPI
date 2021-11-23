@@ -12,6 +12,7 @@ namespace TodoAPI.Graphql
         private readonly ITodoListsRepository _todoListRepository;
         private readonly ITodoItemsRepository _todoItemsRepository;
         private readonly ILabelsRepository _labelRepository;
+
         public TodoMutation([Service] ITodoListsRepository todoListRepository, [Service] ITodoItemsRepository todoItemsRepository, [Service] ILabelsRepository labelRepository)
         {
             _todoListRepository = todoListRepository;
@@ -26,12 +27,12 @@ namespace TodoAPI.Graphql
             return addedItem;
         }
 
-        public async Task<int> DeleteLabel(int id)
+        public async Task<int> DeleteLabel(int labelId)
         {
-            Labels deletelabel = await _labelRepository.GetLabel(id);
+            Labels deletelabel = await _labelRepository.GetLabel(labelId);
             if (deletelabel != null)
             {
-                await _labelRepository.DeleteLabel(id);
+                await _labelRepository.DeleteLabel(labelId);
                 return deletelabel.LabelId;
             }
             return -1;
@@ -51,12 +52,12 @@ namespace TodoAPI.Graphql
             return updatedItem;
         }
 
-        public async Task<int> DeleteToDoItem(int id)
+        public async Task<int> DeleteToDoItem(int itemId)
         {
-            TodoItems deletedItem = await _todoItemsRepository.GetTodoItem(id);
+            TodoItems deletedItem = await _todoItemsRepository.GetTodoItem(itemId);
             if (deletedItem != null)
             {
-                await _todoItemsRepository.DeleteTodoItem(id);
+                await _todoItemsRepository.DeleteTodoItem(itemId);
                 return deletedItem.ItemID;
             }
             return -1;
@@ -77,12 +78,12 @@ namespace TodoAPI.Graphql
             return updatedItem;
         }
 
-        public async Task<int> DeleteToDoList(int id)
+        public async Task<int> DeleteToDoList(int ListId)
         {
-            TodoLists deletedItem = await _todoListRepository.GetTodoList(id);
+            TodoLists deletedItem = await _todoListRepository.GetTodoList(ListId);
             if (deletedItem != null)
             {
-                await _todoListRepository.DeleteTodoList(id);
+                await _todoListRepository.DeleteTodoList(ListId);
                 return deletedItem.Id;
             }
             return -1;

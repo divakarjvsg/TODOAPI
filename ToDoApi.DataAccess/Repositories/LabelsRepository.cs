@@ -15,6 +15,7 @@ namespace ToDoApi.DataAccess.Repositories
     {
         private readonly AppDbContext _appDbContext;
         private readonly Guid _loginUser;
+
         public LabelsRepository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
         {
             _appDbContext = appDbContext;
@@ -33,10 +34,10 @@ namespace ToDoApi.DataAccess.Repositories
             return result.Entity;
         }
 
-        public async Task DeleteLabel(int LabelId)
+        public async Task DeleteLabel(int labelId)
         {
             var result = await _appDbContext.Labels
-                .FirstOrDefaultAsync(x => x.LabelId == LabelId);
+                .FirstOrDefaultAsync(x => x.LabelId == labelId);
             if (result != null)
             {
                 _appDbContext.Labels.Remove(result);
@@ -44,16 +45,16 @@ namespace ToDoApi.DataAccess.Repositories
             }
         }
 
-        public async Task<Labels> GetLabelByName(string LabelName)
+        public async Task<Labels> GetLabelByName(string labelName)
         {
             return await _appDbContext.Labels
-                .FirstOrDefaultAsync(x => x.LabelName == LabelName && x.CreatedBy == _loginUser);
+                .FirstOrDefaultAsync(x => x.LabelName == labelName && x.CreatedBy == _loginUser);
         }
 
-        public async Task<Labels> GetLabel(int Id)
+        public async Task<Labels> GetLabel(int labelId)
         {
             return await _appDbContext.Labels
-                .FirstOrDefaultAsync(x => x.LabelId == Id && x.CreatedBy == _loginUser);
+                .FirstOrDefaultAsync(x => x.LabelId == labelId && x.CreatedBy == _loginUser);
         }
 
         public async Task<IEnumerable<Labels>> GetLabels(PageParmeters pageParmeters)
@@ -63,34 +64,34 @@ namespace ToDoApi.DataAccess.Repositories
             return result;
         }
 
-        public async Task AssignLabel(Guid SelectedGuid, List<Labels> SelectedLabels)
+        public async Task AssignLabel(Guid selectedGuid, List<Labels> selectedLabels)
         {
-            for (int i = 0; i < SelectedLabels.Count; i++)
+            for (int i = 0; i < selectedLabels.Count; i++)
             {
                 AssignLabels assign = new AssignLabels
                 {
-                    LabelId = Convert.ToInt32(SelectedLabels[i].LabelId),
-                    AssignedGuid = SelectedGuid
+                    LabelId = Convert.ToInt32(selectedLabels[i].LabelId),
+                    AssignedGuid = selectedGuid
                 };
                 await _appDbContext.AssignLabels.AddAsync(assign);
                 await _appDbContext.SaveChangesAsync();
             }
         }
 
-        public async Task<List<Labels>> GetLabelByGuid(Guid AssignedGuid)
+        public async Task<List<Labels>> GetLabelByGuid(Guid assignedGuid)
         {
-            var labelsResult = await _appDbContext.AssignLabels.Where(x => x.AssignedGuid == AssignedGuid).ToListAsync();
+            var labelsResult = await _appDbContext.AssignLabels.Where(x => x.AssignedGuid == assignedGuid).ToListAsync();
             List<Labels> labels = new List<Labels>();
-            foreach(var assignedlabel in labelsResult)
+            foreach (var assignedlabel in labelsResult)
             {
-                var LabelFetched= await GetLabel(assignedlabel.LabelId);
+                var LabelFetched = await GetLabel(assignedlabel.LabelId);
                 labels.Add(LabelFetched);
             }
             return labels;
         }
 
         public async Task<Labels> UpdateLabels(Labels labels)
-        {         
+        {
             var result = await _appDbContext.Labels
                .FirstOrDefaultAsync(x => x.LabelId == labels.LabelId);
             if (result != null)
@@ -101,6 +102,5 @@ namespace ToDoApi.DataAccess.Repositories
             }
             return null;
         }
-
     }
 }

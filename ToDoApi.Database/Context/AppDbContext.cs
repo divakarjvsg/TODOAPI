@@ -10,6 +10,7 @@ namespace ToDoApi.Database.Context
         {
 
         }
+
         public AppDbContext(DbContextOptions<AppDbContext> options)
           : base(options)
         {

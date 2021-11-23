@@ -7,6 +7,10 @@
   <ItemGroup>
     <Compile Remove="Migrations\20211123041400_Relation.cs" />
     <Compile Remove="Migrations\20211123041400_Relation.Designer.cs" />
+    <Compile Remove="Migrations\20211123120520_DateLabelChange.cs" />
+    <Compile Remove="Migrations\20211123120520_DateLabelChange.Designer.cs" />
+    <Compile Remove="Migrations\20211123122045_UpdateDateLabelChange.cs" />
+    <Compile Remove="Migrations\20211123122045_UpdateDateLabelChange.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,10 +20,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.21" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.21" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.21" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

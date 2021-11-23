@@ -18,12 +18,12 @@ namespace TodoAPI.Controllers
     public class TodoListsController : ControllerBase
     {
         private readonly ITodoListsRepository _todoListRepository;
-        private readonly ILogger<TodoListsController> Logger;
+        private readonly ILogger<TodoListsController> _logger;
 
-        public TodoListsController(ITodoListsRepository _todoListRepository, ILogger<TodoListsController> logger)
+        public TodoListsController(ITodoListsRepository todoListRepository, ILogger<TodoListsController> logger)
         {
-            this._todoListRepository = _todoListRepository;
-            Logger = logger;
+            _todoListRepository = todoListRepository;
+            _logger = logger;
         }
 
 
@@ -37,7 +37,7 @@ namespace TodoAPI.Controllers
             var result = await _todoListRepository.Search(name);
             if (result.Any())
             {
-                Logger.LogInformation($"Returned all ToDoList data of Name: {name} from database.");
+                _logger.LogInformation($"Returned all ToDoList data of Name: {name} from database.");
                 return Ok(result);
             }
             return NotFound();
@@ -50,7 +50,7 @@ namespace TodoAPI.Controllers
         public async Task<ActionResult> GetTodoLists([FromQuery] PageParmeters pageParmeters)
         {
             var result = await _todoListRepository.GetTodoLists(pageParmeters);
-            Logger.LogInformation($"Returned all ToDoList data from database.");
+            _logger.LogInformation($"Returned all ToDoList data from database.");
             return Ok(result);
         }
 
@@ -65,7 +65,7 @@ namespace TodoAPI.Controllers
             {
                 return NotFound();
             }
-            Logger.LogInformation($"Returned ToDoList ID={ListId} from database.");
+            _logger.LogInformation($"Returned ToDoList ID={ListId} from database.");
             return result;
         }
 
@@ -86,27 +86,26 @@ namespace TodoAPI.Controllers
             }
             var itemtoCreate = new TodoLists { TodoListName = todoList.TodoListName };
             var createdItem = await _todoListRepository.AddTodoList(itemtoCreate);
-            Logger.LogInformation($"Item created in ToDoList with ID:{createdItem.Id}");
-            return CreatedAtAction(nameof(GetTodoList),
-                new { id = createdItem.Id }, createdItem);
+            _logger.LogInformation($"Item created in ToDoList with ID:{createdItem.Id}");
+            return CreatedAtAction(nameof(GetTodoList), new { id = createdItem.Id }, createdItem);
         }
 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Route("{ListId:int}")]
+        [Route("{listId:int}")]
         [AcceptVerbs("PUT", "PATCH")]
-        public async Task<ActionResult<TodoLists>> UpdateTodoList(int ListId, UpdateTodoListModel todoList)
+        public async Task<ActionResult<TodoLists>> UpdateTodoList(int listId, UpdateTodoListModel todoList)
         {
-            if (ListId != todoList.Id)
+            if (listId != todoList.Id)
                 return BadRequest("Item ID mismatch");
-            var itemToUpdate = await _todoListRepository.GetTodoList(ListId);
+            var itemToUpdate = await _todoListRepository.GetTodoList(listId);
             if (itemToUpdate == null)
             {
-                return NotFound($"Item with Id = {ListId} not found in ToDoList");
+                return NotFound($"Item with Id = {listId} not found in ToDoList");
             }
             itemToUpdate.TodoListName = todoList.TodoListName;
-            Logger.LogInformation($"Item updated in ToDoList with ID:{ListId}");
+            _logger.LogInformation($"Item updated in ToDoList with ID:{listId}");
             return await _todoListRepository.UpdateTodoList(itemToUpdate);
         }
 
@@ -114,17 +113,17 @@ namespace TodoAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{ListId:int}")]
-        public async Task<ActionResult> DeleteTodoList(int ListId)
+        [HttpDelete("{listId:int}")]
+        public async Task<ActionResult> DeleteTodoList(int listId)
         {
-            var itemToDelete = await _todoListRepository.GetTodoList(ListId);
+            var itemToDelete = await _todoListRepository.GetTodoList(listId);
             if (itemToDelete == null)
             {
-                return NotFound($"Item with Id = {ListId} not found in ToDoList");
+                return NotFound($"Item with Id = {listId} not found in ToDoList");
             }
-            await _todoListRepository.DeleteTodoList(ListId);
-            Logger.LogInformation($"Item deleted in ToDoList with ID:{ListId}");
-            return Ok($"Item with Id = {ListId} deleted in ToDoList");
+            await _todoListRepository.DeleteTodoList(listId);
+            _logger.LogInformation($"Item deleted in ToDoList with ID:{listId}");
+            return Ok($"Item with Id = {listId} deleted in ToDoList");
         }
     }
 }

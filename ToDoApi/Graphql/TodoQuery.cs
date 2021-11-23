@@ -12,6 +12,7 @@ namespace TodoAPI.Queries
         private readonly ITodoItemsRepository _todoItemsRepository;
         private readonly ILabelsRepository _labelRepository;
         private readonly PageParmeters _pageParmeters;
+
         public TodoQuery([Service] ITodoListsRepository todoListRepository, [Service] ITodoItemsRepository todoItemsRepository, [Service] ILabelsRepository labelRepository)
         {
             _pageParmeters = new PageParmeters();
@@ -35,9 +36,9 @@ namespace TodoAPI.Queries
             return await _todoItemsRepository.GetTodoItems(_pageParmeters);
         }
 
-        public async Task<TodoItems> GetToDoItemById(int ItemId)
+        public async Task<TodoItems> GetToDoItemById(int itemId)
         {
-            return await _todoItemsRepository.GetTodoItem(ItemId);
+            return await _todoItemsRepository.GetTodoItem(itemId);
         }
 
         public async Task<IEnumerable<TodoLists>> GetAllToDoLists()
@@ -45,9 +46,9 @@ namespace TodoAPI.Queries
             return await _todoListRepository.GetTodoLists(_pageParmeters);
         }
 
-        public async Task<TodoLists> GetToDoListById(int ListId)
+        public async Task<TodoLists> GetToDoListById(int listId)
         {
-            return await _todoListRepository.GetTodoList(ListId);
+            return await _todoListRepository.GetTodoList(listId);
         }
     }
 }

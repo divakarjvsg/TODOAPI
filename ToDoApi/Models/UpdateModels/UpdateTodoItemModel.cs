@@ -11,5 +11,4 @@ namespace TodoAPI.Models.UpdateModels
         [Required]
         public int Id { get; set; }
     }
-
 }

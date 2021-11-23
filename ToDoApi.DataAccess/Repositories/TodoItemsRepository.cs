@@ -15,9 +15,8 @@ namespace ToDoApi.DataAccess.Repositories
     {
         private readonly AppDbContext _appDbContext;
         private readonly Guid _loginUser;
-        public TodoItemsRepository(AppDbContext appDbContext
-            , IHttpContextAccessor httpContextAccessor
-            )
+
+        public TodoItemsRepository(AppDbContext appDbContext, IHttpContextAccessor httpContextAccessor)
         {
             _appDbContext = appDbContext;
             if (httpContextAccessor.HttpContext.User.Identity is ClaimsIdentity identity)
@@ -29,7 +28,7 @@ namespace ToDoApi.DataAccess.Repositories
 
         public async Task<TodoItems> AddTodoItem(TodoItems todoItem)
         {
-            todoItem.CreatedDateTime = DateTime.Now;
+            todoItem.CreatedDate = DateTime.Now;
             todoItem.ItemGuid = Guid.NewGuid();
             todoItem.CreatedBy = _loginUser;
             var result = await _appDbContext.TodoItems.AddAsync(todoItem);
@@ -37,10 +36,10 @@ namespace ToDoApi.DataAccess.Repositories
             return result.Entity;
         }
 
-        public async Task DeleteTodoItem(int ItemId)
+        public async Task DeleteTodoItem(int itemId)
         {
             var result = await _appDbContext.TodoItems
-                .FirstOrDefaultAsync(x => x.ItemID == ItemId && x.CreatedBy == _loginUser);
+                .FirstOrDefaultAsync(x => x.ItemID == itemId && x.CreatedBy == _loginUser);
             if (result != null)
             {
                 var assignedresult = await _appDbContext.AssignLabels.Where(x => x.AssignedGuid == result.ItemGuid).ToListAsync();
@@ -53,26 +52,27 @@ namespace ToDoApi.DataAccess.Repositories
             }
         }
 
-        public async Task<TodoItems> GetTodoItem(int ItemId)
+        public async Task<TodoItems> GetTodoItem(int itemId)
         {
             return await _appDbContext.TodoItems
-               .FirstOrDefaultAsync(y => y.ItemID == ItemId && y.CreatedBy == _loginUser);
+               .FirstOrDefaultAsync(y => y.ItemID == itemId && y.CreatedBy == _loginUser);
         }
 
-        public async Task<TodoItems> GetTodoItemByGuid(Guid ItemGuid)
+        public async Task<TodoItems> GetTodoItemByGuid(Guid itemGuid)
         {
             return await _appDbContext.TodoItems
-               .FirstOrDefaultAsync(y => y.ItemGuid == ItemGuid);
-        }
-        public async Task<TodoItems> GetTodoItemByName(string ItemName)
-        {
-            return await _appDbContext.TodoItems
-                .FirstOrDefaultAsync(x => x.ItemName == ItemName && x.CreatedBy == _loginUser);
+               .FirstOrDefaultAsync(y => y.ItemGuid == itemGuid);
         }
 
-        public async Task<IEnumerable<TodoItems>> GetTodoItemforListID(int ListId)
+        public async Task<TodoItems> GetTodoItemByName(string itemName)
         {
-            IQueryable<TodoItems> query = _appDbContext.TodoItems.Where(x => x.Id == ListId);
+            return await _appDbContext.TodoItems
+                .FirstOrDefaultAsync(x => x.ItemName == itemName && x.CreatedBy == _loginUser);
+        }
+
+        public async Task<IEnumerable<TodoItems>> GetTodoItemforListID(int listId)
+        {
+            IQueryable<TodoItems> query = _appDbContext.TodoItems.Where(x => x.Id == listId);
             var result = await query.ToListAsync();
             return result;
         }
@@ -84,12 +84,12 @@ namespace ToDoApi.DataAccess.Repositories
             return result;
         }
 
-        public async Task<IEnumerable<TodoItems>> Search(string ItemName)
+        public async Task<IEnumerable<TodoItems>> Search(string itemName)
         {
             IQueryable<TodoItems> query = _appDbContext.TodoItems.Where(x => x.CreatedBy == _loginUser);
-            if (!string.IsNullOrEmpty(ItemName))
+            if (!string.IsNullOrEmpty(itemName))
             {
-                query = query.Where(x => x.ItemName.Contains(ItemName));
+                query = query.Where(x => x.ItemName.Contains(itemName));
             }
             return await query.ToListAsync();
         }
@@ -101,8 +101,7 @@ namespace ToDoApi.DataAccess.Repositories
 
             if (result != null)
             {
-                result.ModifiedDateTime = DateTime.Now;
-
+                result.UpdatedDate = DateTime.Now;
                 result.ItemName = todoItem.ItemName;
 
                 if (todoItem.Id != 0)
