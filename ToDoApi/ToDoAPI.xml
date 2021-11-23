@@ -1,0 +1,307 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ToDoAPI</name>
+    </assembly>
+    <members>
+        <member name="M:TodoAPI.Configuration.SwaggerExtension.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            implements extension method for adding Swagger services.
+            </summary>
+            <param name="services"></param>
+        </member>
+        <member name="M:TodoAPI.Controllers.AccountController.Register(ToDoApi.Database.Models.RegisterModel)">
+            <summary>
+            Register new user
+            </summary>
+            <param name="registerModel"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> user created.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.AccountController.Login(ToDoApi.Database.Models.LoginModel)">
+            <summary>
+            Login 
+            </summary>
+            <param name="loginModel"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> user login success.</response>
+            <response code="400"> invalid credentials</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.AccountController.Logout">
+            <summary>
+            Logout
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.GetLabels(ToDoApi.Database.Models.PageParmeters)">
+            <summary>
+            Get all labels
+            </summary>
+            <param name="pageParmeters"></param>
+            <returns>Returns Action Result type based on Success or Failure. </returns>
+            <response code="200"> Gets all label records.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.AddLabels(TodoAPI.Models.LabelModel)">
+            <summary>
+            Create a label
+            </summary>
+            <param name="label"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="201"> returns label created with details provided.</response>
+            <response code="400"> label input was empty</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.DeleteLabel(System.Int32)">
+            <summary>
+            Delete a label
+            </summary>
+            <param name="labelId"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> delete specific label records with details provided.</response>
+            <response code="404"> A record with the specified labelId was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.AssignLabelstoItem(System.Int32,System.Collections.Generic.List{TodoAPI.Models.CreateModels.AssignLabelsModel})">
+            <summary>
+            Assign labels to todoItem
+            </summary>
+            <param name="itemId"></param>
+            <param name="selectedLabels"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> assigns labels to todoItem.</response>
+            <response code="404"> A record with the specified itemID was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.AssignLabelstoList(System.Int32,System.Collections.Generic.List{TodoAPI.Models.CreateModels.AssignLabelsModel})">
+            <summary>
+            Assign labels to todoList
+            </summary>
+            <param name="listId"></param>
+            <param name="SelectedLabels"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> assigns labels to todoList.</response>
+            <response code="404"> A record with the specified listId was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.LabelsAssignedtoList(System.Int32)">
+            <summary>
+            Get labels assigned to todoList
+            </summary>
+            <param name="listId"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> get assigned labels to todoList.</response>
+            <response code="404"> A record with the specified listId was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.LabelsAssignedtoItem(System.Int32)">
+            <summary>
+            Get assigned labels to todoitem
+            </summary>
+            <param name="itemId"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> get assigned labels to todoItem.</response>
+            <response code="404"> A record with the specified itemId was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.LabelsController.UpdateLabel(System.Int32,ToDoApi.Database.Models.Labels)">
+            <summary>
+            Updates a label
+            </summary>
+            <param name="labelId"></param>
+            <param name="labels"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> updated label</response>
+            <response code="404"> A record with the specified labelId was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="400"> labelId mismatch in the paramaters</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoItemsController.Search(System.String)">
+            <summary>
+            Search for specific todoItem name 
+            </summary>
+            <param name="name"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> returns specific todoitem records with details provided.</response>
+            <response code="404"> A record with the specified name in items was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoItemsController.GetTodoItems(ToDoApi.Database.Models.PageParmeters)">
+            <summary>
+            Get all TodoItems
+            </summary>
+            <param name="pageParmeters"></param>
+            <returns>Returns Action Result type based on Success or Failure. </returns>
+            <response code="200"> Gets all todoitems records.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoItemsController.GetTodoItem(System.Int32)">
+            <summary>
+            Get specific todoItem 
+            </summary>
+            <param name="itemId"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> returns specific todoitem records with details provided.</response>
+            <response code="404"> A record with the specified itemid in items was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoItemsController.CreateTodoItem(TodoAPI.Models.TodoItemModel)">
+            <summary>
+            Create todoItem 
+            </summary>
+            <param name="todoItem"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="201"> returns todoitem created with details provided.</response>
+            <response code="400"> todoItem input was empty</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoItemsController.UpdateTodoItem(System.Int32,TodoAPI.Models.UpdateModels.UpdateTodoItemModel)">
+            <summary>
+            Update a todoitem
+            </summary>
+            <param name="itemId"></param>
+            <param name="todoItem"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="404"> A record with the specified itemid was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="400"> itemid mismatch in the paramaters</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoItemsController.PatchTodoList(System.Int32,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{TodoAPI.Models.UpdateModels.UpdateTodoItemModel})">
+            <summary>
+            Partial update an todoitem
+            </summary>
+            <param name="itemId"></param>
+            <param name="todoItemPatchDoc"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="404"> A record with the specified name in items was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="400"> itemid mismatch in the paramaters</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoItemsController.DeleteTodoItem(System.Int32)">
+            <summary>
+            Delete a todoItem
+            </summary>
+            <param name="itemId"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> delete specific todoitem records with details provided.</response>
+            <response code="404"> A record with the specified itemId was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoListsController.Search(System.String)">
+            <summary>
+            Search for sepecific tolist with input
+            </summary>
+            <param name="name"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> returns specific todolist records with details provided.</response>
+            <response code="404"> A record with the specified name in items was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoListsController.GetTodoLists(ToDoApi.Database.Models.PageParmeters)">
+            <summary>
+            Get all todolist
+            </summary>
+            <param name="pageParmeters"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> returns specific todolist records with details provided.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoListsController.GetTodoList(System.Int32)">
+            <summary>
+            Get specifi todoList
+            </summary>
+            <param name="ListId"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> returns specific todolist records with details provided.</response>
+            <response code="404"> A record with the specified Listid in todolist was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoListsController.CreateTodoList(TodoAPI.Models.TodoListModel)">
+            <summary>
+            Creates a todoList 
+            </summary>
+            <param name="todoList"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="201"> returns todoList created with details provided.</response>
+            <response code="400"> todoList input was empty.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoListsController.UpdateTodoList(System.Int32,TodoAPI.Models.UpdateModels.UpdateTodoListModel)">
+            <summary>
+            updates a todoList 
+            </summary>
+            <param name="listId"></param>
+            <param name="todoList"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="404"> A record with the specified listid was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+            <response code="400"> listId mismatch in the paramaters</response>
+            <response code="500"> some error occurred.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoListsController.PatchTodoList(System.Int32,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{TodoAPI.Models.UpdateModels.UpdateTodoListModel})">
+            <summary>
+            Partial update to todoList
+            </summary>
+            <param name="listId"></param>
+            <param name="todoListPatchDoc"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="400"> Input paramter is null/empty.</response>
+            <response code="404"> A record with the specified todolist ID was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+        </member>
+        <member name="M:TodoAPI.Controllers.TodoListsController.DeleteTodoList(System.Int32)">
+            <summary>
+            Deletes a todoList
+            </summary>
+            <param name="listId"></param>
+            <returns>Returns Action result type based on Success/Failure.</returns>
+            <response code="200"> delete specific todolist records with details provided.</response>
+            <response code="404"> A record with the specified listid was not found.</response>
+            <response code="401"> Authorization information is missing or invalid.</response>
+        </member>
+        <member name="M:TodoAPI.Middleware.ContentLocationMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Process request.
+            </summary>
+            <returns>Returns nothing.</returns>
+        </member>
+        <member name="T:TodoAPI.Middleware.ContentLocationMiddlewareExtensions">
+            <summary>
+            Extension of application builder for exception middleware.
+            </summary>
+        </member>
+        <member name="M:TodoAPI.Middleware.ContentLocationMiddlewareExtensions.UseContentLocationMiddleware(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Configure Content-Location middleware.
+            </summary>
+            <param name="app">Application builder.</param>
+        </member>
+        <member name="P:ToDoAPI.Models.ResponseModels.ApiResponse.Message">
+            <summary>
+            Error Message
+            </summary>
+            <example>Not Found</example>
+        </member>
+    </members>
+</doc>

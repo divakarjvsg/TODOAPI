@@ -1,14 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoAPI.Models;
 using TodoAPI.Models.UpdateModels;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Models;
+using ToDoAPI.Models.ResponseModels;
 
 namespace TodoAPI.Controllers
 {
@@ -28,9 +31,18 @@ namespace TodoAPI.Controllers
             _logger = logger;
         }
 
-
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        /// <summary>
+        /// Search for specific todoItem name 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> returns specific todoitem records with details provided.</response>
+        /// <response code="404"> A record with the specified name in items was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(TodoItems),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UpdateTodoItemModel),StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("SearchItems/{name}")]
         [HttpGet()]
@@ -45,8 +57,16 @@ namespace TodoAPI.Controllers
             return NotFound();
         }
 
-
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <summary>
+        /// Get all TodoItems
+        /// </summary>
+        /// <param name="pageParmeters"></param>
+        /// <returns>Returns Action Result type based on Success or Failure. </returns>
+        /// <response code="200"> Gets all todoitems records.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(TodoItems), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
         public async Task<ActionResult> GetTodoItems([FromQuery] PageParmeters pageParmeters)
@@ -56,8 +76,18 @@ namespace TodoAPI.Controllers
             return Ok(result);
         }
 
-
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        /// <summary>
+        /// Get specific todoItem 
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> returns specific todoitem records with details provided.</response>
+        /// <response code="404"> A record with the specified itemid in items was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(TodoItems), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("{itemId:int}")]
         public async Task<ActionResult<TodoItems>> GetTodoItem(int itemId)
@@ -68,12 +98,21 @@ namespace TodoAPI.Controllers
                 return NotFound();
             }
             _logger.LogInformation($"Item fetched in ToDoItems with ID:{itemId}");
-            return result;
+            return Ok(result);
         }
 
-
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        /// <summary>
+        /// Create todoItem 
+        /// </summary>
+        /// <param name="todoItem"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="201"> returns todoitem created with details provided.</response>
+        /// <response code="400"> todoItem input was empty</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(TodoItems), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(TodoItemModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
         public async Task<ActionResult<TodoItems>> CreateTodoItem(TodoItemModel todoItem)
@@ -99,12 +138,22 @@ namespace TodoAPI.Controllers
                 new { id = createdItem.ItemID }, createdItem);
         }
 
-
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        /// <summary>
+        /// Update a todoitem
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <param name="todoItem"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="404"> A record with the specified itemid was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="400"> itemid mismatch in the paramaters</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(TodoItemModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("{itemId:int}")]
-        [AcceptVerbs("PUT", "PATCH")]
+        [HttpPut]
         public async Task<ActionResult<TodoItems>> UpdateTodoItem(int itemId, UpdateTodoItemModel todoItem)
         {
             if (itemId != todoItem.ItemID)
@@ -116,13 +165,61 @@ namespace TodoAPI.Controllers
             }
             _logger.LogInformation($"Item updated in ToDoItems with ID:{itemId}");
             itemToUpdate.ItemName = todoItem.ItemName;
-            itemToUpdate.Id = todoItem.Id;
+            itemToUpdate.Id = todoItem.ListId;
             return await _todoItemsRepository.UpdateTodoItem(itemToUpdate);
         }
 
+        /// <summary>
+        /// Partial update an todoitem
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <param name="todoItemPatchDoc"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="404"> A record with the specified name in items was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="400"> itemid mismatch in the paramaters</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(TodoItemModel),StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpPatch]
+        public async Task<ActionResult<TodoItems>> PatchTodoList([Required] int itemId, [FromBody] JsonPatchDocument<UpdateTodoItemModel> todoItemPatchDoc)
+        {
+            if (todoItemPatchDoc == null)
+            {
+                return BadRequest();
+            }
+            var itemToUpdate = await _todoItemsRepository.GetTodoItem(itemId);
+            if (itemToUpdate == null)
+            {
+                return NotFound($"Item with Id = {itemId} not found in ToDoItem");
+            }
+            UpdateTodoItemModel updateTodoItem = new UpdateTodoItemModel { ListId = itemToUpdate.Id, ItemID = itemToUpdate.ItemID,ItemName=itemToUpdate.ItemName };
+            todoItemPatchDoc.ApplyTo(updateTodoItem);
+            bool isValid = TryValidateModel(updateTodoItem);
+            if (!isValid)
+            {
+                return BadRequest(ModelState);
+            }
+            itemToUpdate.ItemName = updateTodoItem.ItemName;
+            itemToUpdate.Id = updateTodoItem.ListId;
+            return await _todoItemsRepository.UpdateTodoItem(itemToUpdate);
+        }
 
+        /// <summary>
+        /// Delete a todoItem
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> delete specific todoitem records with details provided.</response>
+        /// <response code="404"> A record with the specified itemId was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(TodoItemModel),StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpDelete("{itemId:int}")]
         public async Task<ActionResult> DeleteTodoItem(int itemId)
         {

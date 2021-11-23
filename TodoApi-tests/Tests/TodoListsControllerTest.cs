@@ -48,7 +48,7 @@ namespace TodoApi_tests.Tests
         [Test]
         public async Task UpdateTodoListTest()
         {
-            var result = await _todoListsController.UpdateTodoList(100, new UpdateTodoListModel() { TodoListName = "test", Id = 100 });
+            var result = await _todoListsController.UpdateTodoList(100, new UpdateTodoListModel() { TodoListName = "test", ListId = 100 });
             Assert.IsNotNull(result);
             Assert.AreEqual(100, result.Value.Id);
         }

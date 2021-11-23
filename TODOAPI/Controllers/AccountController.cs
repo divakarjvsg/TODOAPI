@@ -20,7 +20,13 @@ namespace TodoAPI.Controllers
             _signInManager = signInManager;
         }
 
-
+        /// <summary>
+        /// Register new user
+        /// </summary>
+        /// <param name="registerModel"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> user created.</response>
+        /// <response code="500"> some error occurred.</response>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
@@ -47,9 +53,16 @@ namespace TodoAPI.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, "Invalid Credentials");
         }
 
-
+        /// <summary>
+        /// Login 
+        /// </summary>
+        /// <param name="loginModel"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> user login success.</response>
+        /// <response code="400"> invalid credentials</response>
+        /// <response code="500"> some error occurred.</response>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(LoginModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
         [Route("Login")]
@@ -68,6 +81,10 @@ namespace TodoAPI.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, "Error in Login");
         }
 
+        /// <summary>
+        /// Logout
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [Route("Logout")]
         public async Task<ActionResult> Logout()

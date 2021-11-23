@@ -5,7 +5,7 @@ namespace TodoAPI.Models.UpdateModels
     public class UpdateTodoListModel
     {
         [Required]
-        public int Id { get; set; }
+        public int ListId { get; set; }
         [Required]
         public string TodoListName { get; set; }
     }

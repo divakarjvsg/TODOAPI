@@ -9,6 +9,7 @@ using TodoAPI.Models.CreateModels;
 using TodoAPI.Models.ResponseModels;
 using ToDoApi.DataAccess.Repositories.Contracts;
 using ToDoApi.Database.Models;
+using ToDoAPI.Models.ResponseModels;
 
 namespace TodoAPI.Controllers
 {
@@ -30,6 +31,15 @@ namespace TodoAPI.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get all labels
+        /// </summary>
+        /// <param name="pageParmeters"></param>
+        /// <returns>Returns Action Result type based on Success or Failure. </returns>
+        /// <response code="200"> Gets all label records.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
@@ -40,9 +50,18 @@ namespace TodoAPI.Controllers
             return Ok(result);
         }
 
-
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        /// <summary>
+        /// Create a label
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="201"> returns label created with details provided.</response>
+        /// <response code="400"> label input was empty</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Labels),StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("AddLabel")]
         [HttpPost]
@@ -63,8 +82,17 @@ namespace TodoAPI.Controllers
                 new { id = createdItem.LabelId }, createdItem);
         }
 
-
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        /// <summary>
+        /// Delete a label
+        /// </summary>
+        /// <param name="labelId"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> delete specific label records with details provided.</response>
+        /// <response code="404"> A record with the specified labelId was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpDelete("{labelId:int}")]
@@ -79,8 +107,19 @@ namespace TodoAPI.Controllers
             return Ok($"Label with Id = {labelId} deleted");
         }
 
+        /// <summary>
+        /// Assign labels to todoItem
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <param name="selectedLabels"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> assigns labels to todoItem.</response>
+        /// <response code="404"> A record with the specified itemID was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("AssignLabeltoItem/{itemId:int}")]
         [HttpPost]
@@ -105,9 +144,19 @@ namespace TodoAPI.Controllers
             return Ok("Labels Assigned to Item");
         }
 
-
+        /// <summary>
+        /// Assign labels to todoList
+        /// </summary>
+        /// <param name="listId"></param>
+        /// <param name="SelectedLabels"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> assigns labels to todoList.</response>
+        /// <response code="404"> A record with the specified listId was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("AssignLabeltoList/{listId:int}")]
         [HttpPost]
@@ -131,8 +180,18 @@ namespace TodoAPI.Controllers
             return Ok("Labels Assigned to List");
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        /// <summary>
+        /// Get labels assigned to todoList
+        /// </summary>
+        /// <param name="listId"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> get assigned labels to todoList.</response>
+        /// <response code="404"> A record with the specified listId was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesResponseType(typeof(LabelsListModel),StatusCodes.Status200OK)]
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("LabelsAssignedtoList/{listId:int}")]
         [HttpGet]
@@ -153,8 +212,18 @@ namespace TodoAPI.Controllers
             return Ok(assignedLabels);
         }
 
+        /// <summary>
+        /// Get assigned labels to todoitem
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> get assigned labels to todoItem.</response>
+        /// <response code="404"> A record with the specified itemId was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="500"> some error occurred.</response>
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Route("LabelsAssignedtoItem/{itemId:int}")]
         [HttpGet]
@@ -175,9 +244,21 @@ namespace TodoAPI.Controllers
             return Ok(assignedLabels);
         }
 
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        /// <summary>
+        /// Updates a label
+        /// </summary>
+        /// <param name="labelId"></param>
+        /// <param name="labels"></param>
+        /// <returns>Returns Action result type based on Success/Failure.</returns>
+        /// <response code="200"> updated label</response>
+        /// <response code="404"> A record with the specified labelId was not found.</response>
+        /// <response code="401"> Authorization information is missing or invalid.</response>
+        /// <response code="400"> labelId mismatch in the paramaters</response>
+        /// <response code="500"> some error occurred.</response>
+        [ProducesErrorResponseType(typeof(LoginModel))]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Labels),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("{labelId:int}")]
         public async Task<ActionResult> UpdateLabel(int labelId, [FromBody] Labels labels)

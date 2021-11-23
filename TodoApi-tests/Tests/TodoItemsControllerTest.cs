@@ -51,7 +51,7 @@ namespace TodoApi_tests.Tests
         [Test]
         public async Task UpdateTodoItemTest()
         {
-            var result = await _todoItemsController.UpdateTodoItem(100, new UpdateTodoItemModel() { ItemName = "test", ItemID = 100, Id = 1007 });
+            var result = await _todoItemsController.UpdateTodoItem(100, new UpdateTodoItemModel() { ItemName = "test", ItemID = 100, ListId = 1007 });
             Assert.IsNotNull(result);
             Assert.AreEqual(100, result.Value.ItemID);
         }

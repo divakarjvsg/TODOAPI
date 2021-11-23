@@ -47,7 +47,7 @@ namespace TodoAPI.Graphql
 
         public async Task<TodoItems> UpdateToDoItem(UpdateTodoItemModel todoItem)
         {
-            TodoItems todoItems = new TodoItems { ItemID = todoItem.ItemID, ItemName = todoItem.ItemName, Id = todoItem.Id };
+            TodoItems todoItems = new TodoItems { ItemID = todoItem.ItemID, ItemName = todoItem.ItemName, Id = todoItem.ListId };
             TodoItems updatedItem = await _todoItemsRepository.UpdateTodoItem(todoItems);
             return updatedItem;
         }
@@ -73,7 +73,7 @@ namespace TodoAPI.Graphql
 
         public async Task<TodoLists> UpdateToDoList(UpdateTodoListModel todolist)
         {
-            TodoLists todoList = new TodoLists { TodoListName = todolist.TodoListName, Id = todolist.Id };
+            TodoLists todoList = new TodoLists { TodoListName = todolist.TodoListName, Id = todolist.ListId };
             TodoLists updatedItem = await _todoListRepository.UpdateTodoList(todoList);
             return updatedItem;
         }
