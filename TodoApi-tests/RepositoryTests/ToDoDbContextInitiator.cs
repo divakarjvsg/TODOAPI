@@ -9,7 +9,7 @@ namespace TodoApi_tests.RepositoryTests
         public ToDoDbContextInitiator()
         {
             DbContextOptionsBuilder<AppDbContext> builder = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlServer("server=(localdb)\\MSSQLLocalDB;database=TodoDB;Trusted_Connection=true");
+                .UseSqlServer("server=(localdb)\\MSSQLLocalDB;database=AdformTodoDB;Trusted_Connection=true");
 
             AppDbContext _toDoDbContext = new AppDbContext(builder.Options);
             DBContext = _toDoDbContext;

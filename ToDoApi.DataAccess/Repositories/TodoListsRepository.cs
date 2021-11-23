@@ -28,7 +28,7 @@ namespace ToDoApi.DataAccess.Repositories
 
         public async Task<TodoLists> AddTodoList(TodoLists todoList)
         {
-            todoList.CreatedDate = DateTime.Now;
+            todoList.CreatedDateTime = DateTime.Now;
             todoList.ListGuid = Guid.NewGuid();
             todoList.CreatedBy = _loginUser;
             var result = await _appDbContext.TodoLists.AddAsync(todoList);
@@ -94,7 +94,7 @@ namespace ToDoApi.DataAccess.Repositories
             if (result != null)
             {
                 result.TodoListName = todoList.TodoListName;
-                result.UpdatedDate = DateTime.Now;
+                result.UpdatedDateTime = DateTime.Now;
                 await _appDbContext.SaveChangesAsync();
                 return result;
             }

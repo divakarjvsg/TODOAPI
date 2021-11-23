@@ -46,7 +46,7 @@ namespace TodoApi_tests.RepositoryTests
         {
             TodoLists result = await _todoListContract.UpdateTodoList(new TodoLists() { TodoListName = "testforresult", Id = 1010 });
             Assert.IsNotNull(result);
-            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy"), result.UpdatedDate.ToString("dd/MM/yyyy"));
+            Assert.AreEqual(DateTime.Now.ToString("dd/MM/yyyy"), result.UpdatedDateTime.ToString("dd/MM/yyyy"));
         }
 
         [Test]

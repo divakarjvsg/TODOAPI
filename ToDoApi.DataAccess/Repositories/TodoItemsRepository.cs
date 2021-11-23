@@ -28,7 +28,7 @@ namespace ToDoApi.DataAccess.Repositories
 
         public async Task<TodoItems> AddTodoItem(TodoItems todoItem)
         {
-            todoItem.CreatedDate = DateTime.Now;
+            todoItem.CreatedDateTime = DateTime.Now;
             todoItem.ItemGuid = Guid.NewGuid();
             todoItem.CreatedBy = _loginUser;
             var result = await _appDbContext.TodoItems.AddAsync(todoItem);
@@ -101,7 +101,7 @@ namespace ToDoApi.DataAccess.Repositories
 
             if (result != null)
             {
-                result.UpdatedDate = DateTime.Now;
+                result.UpdatedDateTime = DateTime.Now;
                 result.ItemName = todoItem.ItemName;
 
                 if (todoItem.Id != 0)
