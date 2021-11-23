@@ -179,5 +179,23 @@ namespace TodoAPI.Controllers
             assignedLabels.LabelsAssigned = labels;
             return Ok(assignedLabels);
         }
+
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpPut("{labelId:int}")]
+        public async Task<ActionResult> UpdateLabel(int labelId,[FromBody]Labels labels)
+        {
+            if (labelId != labels.LabelId)
+                return BadRequest();
+            var labelToUpdate = await _labelRepository.GetLabel(labelId);
+            if (labelToUpdate == null)
+            {
+                return NotFound($"Label with Id = {labelId} not found");
+            }
+            await _labelRepository.UpdateLabels(labels);
+            return Ok($"Label with Id = {labelId} Updated");
+        }
     }
 }

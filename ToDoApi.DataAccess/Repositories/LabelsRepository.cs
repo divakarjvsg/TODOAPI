@@ -88,6 +88,19 @@ namespace ToDoApi.DataAccess.Repositories
             }
             return labels;
         }
-      
+
+        public async Task<Labels> UpdateLabels(Labels labels)
+        {         
+            var result = await _appDbContext.Labels
+               .FirstOrDefaultAsync(x => x.LabelId == labels.LabelId);
+            if (result != null)
+            {
+                result.LabelName = labels.LabelName;
+                await _appDbContext.SaveChangesAsync();
+                return result;
+            }
+            return null;
+        }
+
     }
 }

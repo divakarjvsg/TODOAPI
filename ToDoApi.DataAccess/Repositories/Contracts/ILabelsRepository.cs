@@ -13,6 +13,7 @@ namespace ToDoApi.DataAccess.Repositories.Contracts
         Task<Labels> GetLabelByName(string LabelName);
         Task<Labels> GetLabel(int Id);
         Task AssignLabel(Guid SelectedGuid, List<Labels> SelectedLabels);
-        Task<List<Labels>> GetLabelByGuid(Guid AssignedGuid);        
+        Task<List<Labels>> GetLabelByGuid(Guid AssignedGuid);
+        Task<Labels> UpdateLabels(Labels labels);
     }
 }
