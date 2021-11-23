@@ -6,10 +6,8 @@ namespace TodoAPI.Models.UpdateModels
     {
         [Required]
         public int ItemID { get; set; }
-
         [Required]
         public string ItemName { get; set; }
-
         [Required]
         public int Id { get; set; }
     }

@@ -6,7 +6,6 @@ namespace TodoAPI.Models
     {
         [Required]
         public string ItemName { get; set; }
-
         [Required]
         public int ListId { get; set; }
     }
