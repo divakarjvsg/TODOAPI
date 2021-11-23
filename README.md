@@ -21,7 +21,7 @@ Step 2: Go to the project folder and run “dotnet restore” in cmd.
 
 Step 3: Go the repo folder and run “dotnet run” in cmd.
 
-Navigate to http://localhost:28120/Graphql to play with GraphQl UI.
+Navigate to http://localhost:28120/Graphql to play with GraphQl UI. Before using GraphQl, Authenticate/Login using swagger.
 
 
 For Swagger:
